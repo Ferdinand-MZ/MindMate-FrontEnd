@@ -68,10 +68,10 @@ interface ApiResponse {
 }
 
 const SUGGESTED_QUESTIONS = [
-  { text: "How can I manage my anxiety better?" },
-  { text: "I've been feeling overwhelmed lately" },
-  { text: "Can we talk about improving sleep?" },
-  { text: "I need help with work-life balance" },
+  { text: "Bagaimana cara mengelola rasa cemas lebih baik?" },
+  { text: "Akhir-akhir ini saya merasa kelelahan" },
+  { text: "Bagaiaman kalau meningkatkan kualitas tidur?" },
+  { text: "Saya butuh bantuan dengan keseimbangan kerja-hidup" },
 ];
 
 const glowAnimation = {
@@ -431,7 +431,7 @@ export default function TherapyPage() {
         <div className="w-80 flex flex-col border-r bg-muted/30">
           <div className="p-4 border-b">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Chat Sessions</h2>
+              <h2 className="text-lg font-semibold">Sesi Chat</h2>
               <Button
                 variant="ghost"
                 size="icon"
@@ -457,7 +457,7 @@ export default function TherapyPage() {
               ) : (
                 <MessageSquare className="w-4 h-4" />
               )}
-              New Session
+              Sesi Baru
             </Button>
           </div>
 
@@ -486,7 +486,7 @@ export default function TherapyPage() {
                   </p>
                   <div className="flex items-center justify-between mt-2">
                     <span className="text-xs text-muted-foreground">
-                      {session.messages.length} messages
+                      {session.messages.length} Pesan
                     </span>
                     <span className="text-xs text-muted-foreground">
                       {(() => {
@@ -519,9 +519,9 @@ export default function TherapyPage() {
                 <Bot className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="font-semibold">AI Therapist</h2>
+                <h2 className="font-semibold">MindMate</h2>
                 <p className="text-sm text-muted-foreground">
-                  {messages.length} messages
+                  {messages.length} pesan
                 </p>
               </div>
             </div>
@@ -552,11 +552,11 @@ export default function TherapyPage() {
                         </motion.div>
                       </div>
                       <span className="bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent">
-                        AI Therapist
+                        MindMate
                       </span>
                     </div>
                     <p className="text-muted-foreground mt-2">
-                      How can I assist you today?
+                      Bagaimana saya membantu anda hari ini?
                     </p>
                   </div>
                 </div>

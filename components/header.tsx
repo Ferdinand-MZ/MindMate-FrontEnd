@@ -7,7 +7,7 @@ import {
   Menu,
   X,
   MessageCircle,
-  AudioWaveform,
+  BotMessageSquare,
   LogOut,
   LogIn,
 } from "lucide-react";
@@ -22,8 +22,8 @@ export function Header() {
 
   console.log("Header: Auth state:", { isAuthenticated, user });
   const navItems = [
-    { href: "/features", label: "Features" },
-    { href: "/about", label: "About Aura" },
+    { href: "/features", label: "Fitur" },
+    { href: "/about", label: "Tentang" },
   ];
 
   return (
@@ -35,13 +35,13 @@ export function Header() {
             href="/"
             className="flex items-center space-x-2 transition-opacity hover:opacity-80"
           >
-            <AudioWaveform className="h-7 w-7 text-primary animate-pulse-gentle" />
+            <BotMessageSquare   className="h-7 w-7 text-primary animate-pulse-gentle" />
             <div className="flex flex-col">
               <span className="font-semibold text-lg bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-                Aura3.0
+                MindMate
               </span>
               <span className="text-xs dark:text-muted-foreground">
-                Your mental health Companion{" "}
+                Pendamping kesehatan mental Anda{" "}
               </span>
             </div>
           </Link>
@@ -71,7 +71,7 @@ export function Header() {
                   >
                     <Link href="/dashboard">
                       <MessageCircle className="w-4 h-4 mr-1" />
-                      Start Chat
+                      Mulai
                     </Link>
                   </Button>
                   <Button

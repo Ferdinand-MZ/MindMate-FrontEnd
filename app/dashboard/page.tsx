@@ -1,5 +1,6 @@
 "use client";
 
+import id from 'date-fns/locale/id';
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
@@ -413,36 +414,36 @@ export default function Dashboard() {
   // Update wellness stats to reflect the changes
   const wellnessStats = [
     {
-      title: "Mood Score",
+      title: "Skor Mood",
       value: dailyStats.moodScore ? `${dailyStats.moodScore}%` : "No data",
       icon: Brain,
       color: "text-purple-500",
       bgColor: "bg-purple-500/10",
-      description: "Today's average mood",
+      description: "Rata rata mood hari ini",
     },
     {
-      title: "Completion Rate",
+      title: "Tingkat Selesai",
       value: "100%",
       icon: Trophy,
       color: "text-yellow-500",
       bgColor: "bg-yellow-500/10",
-      description: "Perfect completion rate",
+      description: "sempurna",
     },
     {
-      title: "Therapy Sessions",
+      title: "Sesi Terapi",
       value: `${dailyStats.mindfulnessCount} sessions`,
       icon: Heart,
       color: "text-rose-500",
       bgColor: "bg-rose-500/10",
-      description: "Total sessions completed",
+      description: "Total sesi selesai",
     },
     {
-      title: "Total Activities",
+      title: "Total Aktivitas",
       value: dailyStats.totalActivities.toString(),
       icon: Activity,
       color: "text-blue-500",
       bgColor: "bg-blue-500/10",
-      description: "Planned for today",
+      description: "Direncanakan hari ini",
     },
   ];
 
@@ -517,15 +518,15 @@ export default function Dashboard() {
             className="space-y-2"
           >
             <h1 className="text-3xl font-bold text-foreground">
-              Welcome back, {user?.name || "there"}
+              Selamat Datang, {user?.name || "teman"}
             </h1>
             <p className="text-muted-foreground">
-              {currentTime.toLocaleDateString("en-US", {
-                weekday: "long",
-                month: "long",
-                day: "numeric",
-              })}
-            </p>
+            {currentTime.toLocaleDateString("id-ID", {
+              weekday: "long",
+              month: "long",
+              day: "numeric",
+            })}
+          </p>
           </motion.div>
           <div className="flex items-center gap-4">
             <Button variant="outline" size="icon">
@@ -548,9 +549,9 @@ export default function Dashboard() {
                       <Sparkles className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-lg">Quick Actions</h3>
+                      <h3 className="font-semibold text-lg">Aksi Cepat</h3>
                       <p className="text-sm text-muted-foreground">
-                        Start your wellness journey
+                        Mulai perjalanan kesehatan Anda
                       </p>
                     </div>
                   </div>
@@ -571,10 +572,10 @@ export default function Dashboard() {
                         </div>
                         <div className="text-left">
                           <div className="font-semibold text-white">
-                            Start Therapy
+                            Mulai Terapi
                           </div>
                           <div className="text-xs text-white/80">
-                            Begin a new session
+                            Buat sesi baru
                           </div>
                         </div>
                       </div>
@@ -599,7 +600,7 @@ export default function Dashboard() {
                         <div>
                           <div className="font-medium text-sm">Track Mood</div>
                           <div className="text-xs text-muted-foreground mt-0.5">
-                            How are you feeling?
+                            Bagaimana perasaan anda?
                           </div>
                         </div>
                       </Button>
@@ -619,7 +620,7 @@ export default function Dashboard() {
                         <div>
                           <div className="font-medium text-sm">Check-in</div>
                           <div className="text-xs text-muted-foreground mt-0.5">
-                            Quick wellness check
+                            Pemeriksaan kesehatan cepat
                           </div>
                         </div>
                       </Button>
@@ -634,10 +635,10 @@ export default function Dashboard() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>Today's Overview</CardTitle>
+                    <CardTitle>Overview Hari ini</CardTitle>
                     <CardDescription>
-                      Your wellness metrics for{" "}
-                      {format(new Date(), "MMMM d, yyyy")}
+                      Metrik Kesehatan anda untuk tanggal{" "}
+                      {format(new Date(), "d MMMM yyyy", { locale: id })}
                     </CardDescription>
                   </div>
                   <Button
@@ -672,7 +673,7 @@ export default function Dashboard() {
                   ))}
                 </div>
                 <div className="mt-4 text-xs text-muted-foreground text-right">
-                  Last updated: {format(dailyStats.lastUpdated, "h:mm a")}
+                  Terakhir kali di update: {format(dailyStats.lastUpdated, "HH:mm", { locale: id })}
                 </div>
               </CardContent>
             </Card>
@@ -685,7 +686,7 @@ export default function Dashboard() {
                   Insights
                 </CardTitle>
                 <CardDescription>
-                  Personalized recommendations based on your activity patterns
+                  Rekomendasi personal berdasarkan pola aktivitas Anda
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -716,8 +717,7 @@ export default function Dashboard() {
                     <div className="text-center text-muted-foreground py-8">
                       <Activity className="w-8 h-8 mx-auto mb-3 opacity-50" />
                       <p>
-                        Complete more activities to receive personalized
-                        insights
+                        Selesaikan lebih banyak aktivitas untuk mendapatkan wawasan personal.
                       </p>
                     </div>
                   )}
