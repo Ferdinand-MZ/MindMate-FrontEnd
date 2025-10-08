@@ -7,19 +7,19 @@ import { Heart, Target, Sparkles } from "lucide-react";
 const missions = [
   {
     icon: <Heart className="w-8 h-8 text-primary" />,
-    title: "Our Mission",
+    title: "Misi Kami",
     description:
       "To democratize access to mental health support through ethical AI and blockchain technology, making quality therapeutic care available to everyone, everywhere, at any time.",
   },
   {
     icon: <Target className="w-8 h-8 text-primary" />,
-    title: "Our Vision",
+    title: "Visi Kami",
     description:
       "A world where mental health support is accessible, private, and personalized, powered by trusted AI agents and secured by blockchain technology.",
   },
   {
     icon: <Sparkles className="w-8 h-8 text-primary" />,
-    title: "Our Values",
+    title: "Prinsip Kami",
     description:
       "Privacy, Innovation, Empathy, and Trust form the cornerstone of our platform, ensuring the highest standards of care and security.",
   },
@@ -36,11 +36,11 @@ export default function AboutPage() {
         className="text-center mb-20"
       >
         <h1 className="text-4xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-          About Aura3.0
+          Tentang MindMate
         </h1>
         <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-          We're revolutionizing mental health support by combining cutting-edge
-          AI technology with the security and transparency of blockchain.
+          MindMate mengubah cara kita memahami dan mendukung kesehatan mental
+          melalui integrasi AI canggih dengan sistem yang aman dan transparan.
         </p>
       </motion.div>
 
