@@ -23,7 +23,7 @@ export function Header() {
   console.log("Header: Auth state:", { isAuthenticated, user });
   const navItems = [
     { href: "/features", label: "Fitur" },
-    { href: "/about", label: "Tentang" },
+    { href: "/about", label: "Tentang MindMate" },
   ];
 
   return (
@@ -41,7 +41,7 @@ export function Header() {
                 MindMate
               </span>
               <span className="text-xs dark:text-muted-foreground">
-                Pendamping kesehatan mental Anda{" "}
+                Teman AI kesehatan mentalmu{" "}
               </span>
             </div>
           </Link>
@@ -71,7 +71,7 @@ export function Header() {
                   >
                     <Link href="/dashboard">
                       <MessageCircle className="w-4 h-4 mr-1" />
-                      Mulai
+                      Mulai Mengobrol
                     </Link>
                   </Button>
                   <Button
@@ -80,7 +80,7 @@ export function Header() {
                     className="text-muted-foreground hover:text-foreground transition-colors"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
-                    Sign out
+                    Keluar
                   </Button>
                 </>
               ) : (
@@ -124,7 +124,7 @@ export function Header() {
                 >
                   <Link href="/dashboard">
                     <MessageCircle className="w-4 h-4" />
-                    <span>Start Chat</span>
+                    <span>Mulai Mengobrol</span>
                   </Link>
                 </Button>
               )}

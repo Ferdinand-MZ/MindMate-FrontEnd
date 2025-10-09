@@ -47,7 +47,7 @@ export function StartSessionModal() {
       <DialogTrigger asChild>
         <Button variant="default" className="flex items-center gap-2 w-full">
           <MessageSquare className="w-4 h-4" />
-          Start Therapy Session
+          Start Sesi Terapi
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">

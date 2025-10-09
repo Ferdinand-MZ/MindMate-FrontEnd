@@ -25,12 +25,12 @@ import { useSession } from "@/lib/contexts/session-context";
 import { logActivity } from "@/lib/api/activity";
 
 const activityTypes = [
-  { id: "meditation", name: "Meditation" },
-  { id: "exercise", name: "Exercise" },
-  { id: "walking", name: "Walking" },
-  { id: "reading", name: "Reading" },
-  { id: "journaling", name: "Journaling" },
-  { id: "therapy", name: "Therapy Session" },
+  { id: "Meditasi", name: "Meditasi" },
+  { id: "Olahraga", name: "Olahraga" },
+  { id: "Berjalan", name: "Berjalan" },
+  { id: "Membaca", name: "Membaca" },
+  { id: "Menulis Jurnal", name: "Menulis Jurnal" },
+  { id: "therapy", name: "Sesi Terapi" },
 ];
 
 interface ActivityLoggerProps {
@@ -57,7 +57,7 @@ export function ActivityLogger({
     if (!isAuthenticated) {
       toast({
         title: "Authentication required",
-        description: "Please log in to log activities",
+        description: "Login terlebih dahulu!",
         variant: "destructive",
       });
       return;
@@ -66,7 +66,7 @@ export function ActivityLogger({
     if (!type || !name) {
       toast({
         title: "Missing information",
-        description: "Please fill in all required fields",
+        description: "Masukan data degnan lengkap",
         variant: "destructive",
       });
       return;
@@ -89,7 +89,7 @@ export function ActivityLogger({
 
       toast({
         title: "Activity logged successfully!",
-        description: "Your activity has been recorded.",
+        description: "Aktivitas telah disimpan.",
       });
 
       onActivityLogged();
@@ -112,14 +112,14 @@ export function ActivityLogger({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Log Activity</DialogTitle>
-          <DialogDescription>Record your wellness activity</DialogDescription>
+          <DialogDescription>Catat aktivitas kesehatan Anda.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label>Activity Type</Label>
+            <Label>Tipe Aktivitas</Label>
             <Select value={type} onValueChange={setType}>
               <SelectTrigger>
-                <SelectValue placeholder="Select activity type" />
+                <SelectValue placeholder="Pilih tipe aktivitas" />
               </SelectTrigger>
               <SelectContent>
                 {activityTypes.map((type) => (
@@ -132,16 +132,16 @@ export function ActivityLogger({
           </div>
 
           <div className="space-y-2">
-            <Label>Name</Label>
+            <Label>Nama</Label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Morning Meditation, Evening Walk, etc."
+              placeholder="Meditasi pagi hari, jalan santai, dll."
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Duration (minutes)</Label>
+            <Label>Durasi (Menit)</Label>
             <Input
               type="number"
               value={duration}
@@ -151,11 +151,11 @@ export function ActivityLogger({
           </div>
 
           <div className="space-y-2">
-            <Label>Description (optional)</Label>
+            <Label>Deskripsi (opsional)</Label>
             <Input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="How did it go?"
+              placeholder=""
             />
           </div>
 
@@ -176,7 +176,7 @@ export function ActivityLogger({
               ) : loading ? (
                 "Loading..."
               ) : (
-                "Save Activity"
+                "Simpan Aktivitas"
               )}
             </Button>
           </div>

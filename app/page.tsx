@@ -33,11 +33,11 @@ import { Ripple } from "@/components/ui/ripple";
 
 export default function Home() {
   const emotions = [
-    { value: 0, label: "😔 Sedih", color: "from-blue-500/50" },
+    { value: 0, label: "😔 Murung", color: "from-blue-500/50" },
     { value: 25, label: "😊 Puas", color: "from-green-500/50" },
     { value: 50, label: "😌 Tenang", color: "from-purple-500/50" },
     { value: 75, label: "🤗 Senang", color: "from-yellow-500/50" },
-    { value: 100, label: "✨ Antusias", color: "from-pink-500/50" }
+    { value: 100, label: "✨ Semangat", color: "from-pink-500/50" },
   ];
 
   const [emotion, setEmotion] = useState(50);
@@ -47,21 +47,21 @@ export default function Home() {
 
   const welcomeSteps = [
     {
-      title: "Hi, I'm Aura 👋",
+      title: "Hai, saya Aura 👋",
       description:
-        "Your AI companion for emotional well-being. I'm here to provide a safe, judgment-free space for you to express yourself.",
+        "Teman AI kamu untuk kesejahteraan emosional. Saya hadir untuk menyediakan ruang aman tanpa penilaian agar kamu bisa bebas berekspresi.",
       icon: Waves,
     },
     {
-      title: "Personalized Support 🌱",
+      title: "Dukungan Personal 🌱",
       description:
-        "I adapt to your needs and emotional state, offering evidence-based techniques and gentle guidance when you need it most.",
+        "Saya beradaptasi dengan kebutuhan dan kondisi emosional kamu, menawarkan teknik berbasis bukti dan panduan lembut saat kamu paling membutuhkannya.",
       icon: Brain,
     },
     {
-      title: "Your Privacy Matters 🛡️",
+      title: "Privasi kamu Terjamin 🛡️",
       description:
-        "Our conversations are completely private and secure. I follow strict ethical guidelines and respect your boundaries.",
+        "Percakapan kita sepenuhnya pribadi dan aman. Saya mengikuti pedoman etis yang ketat dan menghormati batasan kamu.",
       icon: Shield,
     },
   ];
@@ -77,28 +77,28 @@ export default function Home() {
     {
       icon: HeartPulse,
       title: "Dukungan 24/7",
-      description: "Selalu ada untuk mendengar dan mendukung Anda, kapan saja",
+      description: "Selalu ada untuk mendengarkan dan mendukung kamu, kapan saja.",
       color: "from-rose-500/20",
       delay: 0.2,
     },
     {
       icon: Lightbulb,
       title: "Wawasan Cerdas",
-      description: "Panduan personal yang didukung oleh kecerdasan emosional",
+      description: "Panduan personal didukung oleh kecerdasan emosional.",
       color: "from-amber-500/20",
       delay: 0.4,
     },
     {
       icon: Lock,
-      title: "Privasi & Aman",
-      description: "Percakapan Anda selalu rahasia dan terenkripsi",
+      title: "Pribadi & Aman",
+      description: "Percakapan kamu selalu bersifat rahasia dan terenkripsi.",
       color: "from-emerald-500/20",
       delay: 0.6,
     },
     {
       icon: MessageSquareHeart,
       title: "Berbasis Bukti",
-      description: "Teknik terapi yang didukung oleh penelitian klinis",
+      description: "Teknik terapeutik yang didukung oleh riset klinis.",
       color: "from-blue-500/20",
       delay: 0.8,
     },
@@ -106,13 +106,13 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen overflow-hidden">
-      {/* Hero Section */}
+      {/* Bagian Utama */}
       <section className="relative min-h-[90vh] mt-20 flex flex-col items-center justify-center py-12 px-4">
-        {/* Enhanced background elements */}
+        {/* Elemen latar belakang */}
         <div className="absolute inset-0 -z-10 overflow-hidden">
           <div
             className={`absolute w-[500px] h-[500px] rounded-full blur-3xl top-0 -left-20 transition-all duration-700 ease-in-out
-            bg-gradient-to-r ${currentEmotion.color} to-transparent opacity-60`}
+             bg-gradient-to-r ${currentEmotion.color} to-transparent opacity-60`}
           />
           <div className="absolute w-[400px] h-[400px] rounded-full bg-secondary/10 blur-3xl bottom-0 right-0 animate-pulse delay-700" />
           <div className="absolute inset-0 bg-background/80 backdrop-blur-3xl" />
@@ -125,32 +125,32 @@ export default function Home() {
           transition={{ duration: 1, ease: "easeOut" }}
           className="relative space-y-8 text-center"
         >
-          {/* Enhanced badge with subtle animation */}
+          {/* Lencana dengan animasi */}
           <div className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm border border-primary/20 bg-primary/5 backdrop-blur-sm hover:border-primary/40 transition-all duration-300">
             <Waves className="w-4 h-4 animate-wave text-primary" />
             <span className="relative text-foreground/90 dark:text-foreground after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1px] after:bg-primary/30 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300">
-              Coba sekarang
+              Teman Kesehatan Mental Berbasis AI kamu
             </span>
           </div>
 
-          {/* Enhanced main heading with smoother gradient */}
+          {/* Judul utama */}
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold font-plus-jakarta tracking-tight">
             <span className="inline-block bg-gradient-to-r from-primary via-primary/90 to-secondary bg-clip-text text-transparent [text-shadow:_0_1px_0_rgb(0_0_0_/_20%)] hover:to-primary transition-all duration-300">
-              Tenangkan
+              Temukan Ketenangan
             </span>
             <br />
             <span className="inline-block mt-2 bg-gradient-to-b from-foreground to-foreground/90 bg-clip-text text-transparent">
-               Pikiran
+              Pikiranmu
             </span>
           </h1>
 
-          {/* Enhanced description with better readability */}
+          {/* Deskripsi */}
           <p className="max-w-[600px] mx-auto text-base md:text-lg text-muted-foreground leading-relaxed tracking-wide">
-            Lagi ngerasa butuh temen curhat? Kami di sini buat dengerin apa pun yang ada di hati dan pikiranmu. 
-            Yuk, ceritain aja, kami selalu ada untukmu!
+            Cobalah cara baru mendapatkan dukungan emosional. Teman AI kami
+            siap mendengarkan, memahami, dan memandu kamu dalam hidup kamu.
           </p>
 
-          {/* Emotion slider section with enhanced transitions */}
+          {/* Slider emosi */}
           <motion.div
             className="w-full max-w-[600px] mx-auto space-y-6 py-8"
             initial={{ opacity: 0, y: 20 }}
@@ -159,7 +159,7 @@ export default function Home() {
           >
             <div className="space-y-2 text-center">
               <p className="text-sm text-muted-foreground/80 font-medium">
-                Apapun yang kamu rasakan, Kami disini untuk mendengarkan
+                Apa pun yang kamu rasakan, kami siap mendengarkan
               </p>
               <div className="flex justify-between items-center px-2">
                 {emotions.map((em) => (
@@ -183,7 +183,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Enhanced slider with dynamic gradient */}
+            {/* Slider dengan gradien dinamis */}
             <div className="relative px-2">
               <div
                 className={`absolute inset-0 bg-gradient-to-r ${currentEmotion.color} to-transparent blur-2xl -z-10 transition-all duration-500`}
@@ -200,12 +200,12 @@ export default function Home() {
 
             <div className="text-center">
               <p className="text-sm text-muted-foreground animate-pulse">
-                Geser ke perasaan yang anda rasakan har ini
+                Geser untuk mengekspresikan perasaan kamu hari ini
               </p>
             </div>
           </motion.div>
 
-          {/* Enhanced CTA button and welcome dialog */}
+          {/* Tombol ajakan & dialog sambutan */}
           <motion.div
             className="flex flex-col sm:flex-row gap-4 justify-center items-center"
             initial={{ opacity: 0, y: 20 }}
@@ -218,7 +218,7 @@ export default function Home() {
               className="relative group h-12 px-8 rounded-full bg-gradient-to-r from-primary via-primary/90 to-secondary hover:to-primary shadow-lg shadow-primary/20 transition-all duration-500 hover:shadow-xl hover:shadow-primary/30"
             >
               <span className="relative z-10 font-medium flex items-center gap-2">
-                Mulai Perjalananmu
+                Mulai Perjalanan kamu
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
               </span>
               <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-size-200 bg-pos-0 group-hover:bg-pos-100" />
@@ -226,7 +226,7 @@ export default function Home() {
           </motion.div>
         </motion.div>
 
-        {/* Enhanced scroll indicator */}
+        {/* Indikator scroll */}
         <motion.div
           className="absolute bottom-8 left-1/2 -translate-x-1/2"
           initial={{ opacity: 0, y: 10 }}
@@ -239,17 +239,16 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* Enhanced Features Grid */}
+      {/* Grid Fitur */}
       <section className="relative py-20 px-4 overflow-hidden">
-        {/* <div className="absolute inset-0 bg-gradient-to-b from-background via-background/50 to-background" /> */}
-
         <div className="max-w-6xl mx-auto">
           <motion.div className="text-center mb-16 space-y-4 text-white ">
             <h2 className="text-3xl font-bold bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent dark:text-primary/90">
-                Bagaimana Kami Membantumu
+              Bagaimana Aura Membantu kamu
             </h2>
             <p className="text-foreground dark:text-foreground/95 max-w-2xl mx-auto font-medium text-lg">
-              Rasakan dukungan emosional baru, didukung oleh AI yang penuh empati
+              Rasakan jenis dukungan emosional baru, didukung oleh AI yang
+              empatik
             </p>
           </motion.div>
 
@@ -335,7 +334,7 @@ export default function Home() {
                 } else {
                   setShowDialog(false);
                   setCurrentStep(0);
-                  // Here you would navigate to the chat interface
+                  // Di sini kamu akan menavigasi ke antarmuka obrolan
                 }
               }}
               className="relative group px-6"
@@ -343,12 +342,12 @@ export default function Home() {
               <span className="flex items-center gap-2">
                 {currentStep === welcomeSteps.length - 1 ? (
                   <>
-                    Let's Begin
+                    Mari Mulai
                     <Sparkles className="w-4 h-4 animate-pulse" />
                   </>
                 ) : (
                   <>
-                    Next
+                    Lanjut
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
                   </>
                 )}
@@ -357,8 +356,6 @@ export default function Home() {
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* Add custom animations to globals.css */}
     </div>
   );
 }

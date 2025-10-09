@@ -5,7 +5,7 @@ export const staticSessions = [
     status: "in_progress",
     scheduledTime: new Date(),
     summary:
-      "Initial therapy session focusing on emotional well-being and personal growth.",
+      "Initial Sesi Terapi focusing on emotional well-being and personal growth.",
     title: "Welcome Session",
     isActive: true,
   },

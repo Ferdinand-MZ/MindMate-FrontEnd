@@ -23,43 +23,43 @@ import { ForestGame } from "./forest-game";
 import { OceanWaves } from "./ocean-waves";
 
 const games = [
-    {
-        id: "breathing",
-        title: "Pola Pernafasan",
-        description: "Ikuti Pernafasan yang menenangkan dengan bantuan visual",
-        icon: Wind,
-        color: "text-blue-500",
-        bgColor: "bg-blue-500/10",
-        duration: "5 mins",
-    },
-    {
-        id: "garden",
-        title: "Taman Zen",
-        description: "Buat dan jaga ruang digital anda yang damai",
-        icon: Flower2,
-        color: "text-rose-500",
-        bgColor: "bg-rose-500/10",
-        duration: "10 mins",
+  {
+    id: "breathing",
+    title: "Pola Pernapasan",
+    description: "Ikuti latihan pernapasan menenangkan dengan panduan visual",
+    icon: Wind,
+    color: "text-blue-500",
+    bgColor: "bg-blue-500/10",
+    duration: "5 menit",
   },
   {
-        id: "forest",
-        title: "Hutan Kesadaran",
-        description: "Ambil langkah damai lewat hutan virtual",
-        icon: TreePine,
-        color: "text-green-500",
-        bgColor: "bg-green-500/10",
-        duration: "15 mins",
+    id: "garden",
+    title: "Taman Zen",
+    description: "Ciptakan dan rawat ruang digital Anda yang damai",
+    icon: Flower2,
+    color: "text-rose-500",
+    bgColor: "bg-rose-500/10",
+    duration: "10 menit",
   },
   {
-        id: "waves",
-        title: "Ombak Laut",
-        description: "Samakan pola pernafasan anda dengan Ombak laut yang tenang",
-        icon: Waves,
-        color: "text-cyan-500",
-        bgColor: "bg-cyan-500/10",
-        duration: "8 mins",
+    id: "forest",
+    title: "Hutan Meditasi",
+    description: "Jalan-jalan santai di hutan virtual yang menenangkan",
+    icon: TreePine,
+    color: "text-green-500",
+    bgColor: "bg-green-500/10",
+    duration: "15 menit",
   },
-]
+  {
+    id: "waves",
+    title: "Ombak Lautan",
+    description: "Sesuaikan napas Anda dengan ombak laut yang lembut",
+    icon: Waves,
+    color: "text-cyan-500",
+    bgColor: "bg-cyan-500/10",
+    duration: "8 menit",
+  },
+];
 
 interface AnxietyGamesProps {
   onGamePlayed?: (gameName: string, description: string) => Promise<void>;
@@ -73,7 +73,6 @@ export const AnxietyGames = ({ onGamePlayed }: AnxietyGamesProps) => {
     setSelectedGame(gameId);
     setShowGame(true);
 
-    // Log the activity
     if (onGamePlayed) {
       try {
         await onGamePlayed(
@@ -107,10 +106,10 @@ export const AnxietyGames = ({ onGamePlayed }: AnxietyGamesProps) => {
         <CardHeader>
           <CardTitle className="text-xl font-semibold flex items-center gap-2">
             <Gamepad2 className="h-5 w-5 text-primary" />
-                Aktivitas Pelepas Kecemasan
+            Aktivitas Pereda Cemas
           </CardTitle>
           <CardDescription>
-            Latihan interaktif untuk mengurangi stress dan cemas
+            Latihan interaktif untuk membantu mengurangi stres dan kecemasan
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -155,10 +154,7 @@ export const AnxietyGames = ({ onGamePlayed }: AnxietyGamesProps) => {
 
           {selectedGame && (
             <div className="mt-6 text-center">
-              <Button className="gap-2" onClick={() => setSelectedGame(null)}>
-                <Gamepad2 className="h-4 w-4" />
-                Start {games.find((g) => g.id === selectedGame)?.title}
-              </Button>
+              {/* Tombol ini sekarang tidak diperlukan karena permainan dimulai secara otomatis */}
             </div>
           )}
         </CardContent>

@@ -22,7 +22,7 @@ const staticChatHistory = [
     id: "3",
     userId: "user1",
     message:
-      "I understand presentations can be stressful. Would you like to try a quick breathing exercise together?",
+      "I understand presentations can be stressful. Would you like to try a quick breathing Olahraga together?",
     role: "assistant",
     timestamp: new Date(Date.now() - 1000 * 60 * 3),
     sentiment: "neutral",
@@ -34,7 +34,7 @@ const staticSessions = [
   {
     id: "1",
     userId: "user1",
-    title: "First Therapy Session",
+    title: "First Sesi Terapi",
     status: "completed",
     summary: "Discussed anxiety management techniques",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
@@ -55,9 +55,9 @@ const staticActivities = [
   {
     id: "1",
     userId: "user1",
-    type: "meditation",
-    name: "Morning Meditation",
-    description: "10-minute guided meditation",
+    type: "Meditasi",
+    name: "Morning Meditasi",
+    description: "10-minute guided Meditasi",
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
     duration: 10,
     completed: true,
@@ -69,7 +69,7 @@ const staticActivities = [
   {
     id: "2",
     userId: "user1",
-    type: "exercise",
+    type: "Olahraga",
     name: "Evening Walk",
     description: "30-minute walk in the park",
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 1),

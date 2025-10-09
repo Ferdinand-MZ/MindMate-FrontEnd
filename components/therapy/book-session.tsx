@@ -18,10 +18,10 @@ export function BookSession() {
 
       toast({
         title: "Session Booked!",
-        description: "Your therapy session has been confirmed.",
+        description: "Your Sesi Terapi has been confirmed.",
       });
 
-      // Redirect to the therapy session
+      // Redirect to the Sesi Terapi
       router.push("/therapy/343");
     } catch (error) {
       toast({
@@ -37,7 +37,7 @@ export function BookSession() {
   return (
     <div className="space-y-4">
       <h3 className="font-semibold">Book a Session</h3>
-      <p className="text-sm text-muted-foreground">30-minute therapy session</p>
+      <p className="text-sm text-muted-foreground">30-minute Sesi Terapi</p>
       <Button onClick={handleBooking} disabled={isLoading} className="w-full">
         {isLoading ? "Processing..." : "Book Now"}
       </Button>

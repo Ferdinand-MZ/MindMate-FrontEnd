@@ -26,8 +26,8 @@ const moodData = {
       day: "Mon",
       value: 65,
       activities: [
-        { name: "Exercise", duration: "30min", impact: "positive" },
-        { name: "Meditation", duration: "15min", impact: "positive" },
+        { name: "Olahraga", duration: "30min", impact: "positive" },
+        { name: "Meditasi", duration: "15min", impact: "positive" },
       ],
       energy: 70,
       sleep: 7.5,
@@ -37,7 +37,7 @@ const moodData = {
       value: 75,
       activities: [
         { name: "Therapy", duration: "1hr", impact: "positive" },
-        { name: "Reading", duration: "45min", impact: "neutral" },
+        { name: "Membaca", duration: "45min", impact: "neutral" },
       ],
       energy: 75,
       sleep: 8,
@@ -58,7 +58,7 @@ const moodData = {
     },
     {
       title: "Activity Impact",
-      description: "Exercise and meditation show the most positive impact",
+      description: "Olahraga and Meditasi show the most positive impact",
       trend: "up",
     },
   ],

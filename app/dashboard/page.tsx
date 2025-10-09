@@ -600,7 +600,9 @@ export default function Dashboard() {
                         <div>
                           <div className="font-medium text-sm">Track Mood</div>
                           <div className="text-xs text-muted-foreground mt-0.5">
-                            Bagaimana perasaan anda?
+                          Bagaimana 
+                          kabar 
+                          mu?
                           </div>
                         </div>
                       </Button>
@@ -620,7 +622,7 @@ export default function Dashboard() {
                         <div>
                           <div className="font-medium text-sm">Check-in</div>
                           <div className="text-xs text-muted-foreground mt-0.5">
-                            Pemeriksaan kesehatan cepat
+                          Pemeriksaan singkat
                           </div>
                         </div>
                       </Button>

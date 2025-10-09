@@ -16,52 +16,52 @@ import {
 const features = [
   {
     icon: <Bot className="w-10 h-10 text-primary" />,
-    title: "AI-Powered Therapy",
+    title: "Teman Curhat AI",
     description:
-      "24/7 access to empathetic AI agents trained in various therapeutic approaches, providing personalized mental health support.",
+      "Ngobrol dengan AI yang ramah kapan saja. AI ini dilatih khusus untuk membantumu menjaga kesehatan mental sesuai kebutuhanmu.",
   },
   {
     icon: <Shield className="w-10 h-10 text-primary" />,
-    title: "Keamanan",
+    title: "Aman dan Terjamin",
     description:
-      "Your therapy sessions are secured by blockchain technology, ensuring complete privacy and transparent record-keeping.",
+      "Semua sesi terapi kamu aman dan rahasia. Ceritamu hanya untuk kamu dan tidak akan dibagikan ke siapa pun.",
   },
   {
     icon: <Brain className="w-10 h-10 text-primary" />,
-    title: "Smart Analysis",
+    title: "Analisis Cerdas",
     description:
-      "Advanced NLP and emotion detection helps understand your mental state and provide appropriate interventions.",
+      "AI pintar kami bisa mengerti perasaanmu dan memberikan saran yang paling pas untuk membantumu merasa lebih baik.",
   },
   {
     icon: <Activity className="w-10 h-10 text-primary" />,
-    title: "Crisis Detection",
+    title: "Bantuan Darurat",
     description:
-      "Real-time monitoring and emergency response protocols to ensure your safety during critical situations.",
+      "Saat kamu dalam keadaan darurat, sistem kami akan langsung merespons untuk memastikan kamu tetap aman.",
   },
-  {
-    icon: <Wifi className="w-10 h-10 text-primary" />,
-    title: "IoT Integration",
-    description:
-      "Connect with smart home devices to create an ambient therapeutic environment that adapts to your needs.",
-  },
+  ///{
+  ///  icon: <Wifi className="w-10 h-10 text-primary" />,
+  ///  title: "Integrasi IoT",
+  ///  description:
+  ///    "Terhubung dengan perangkat rumah pintar untuk menciptakan lingkungan terapeutik yang nyaman dan beradaptasi dengan kebutuhan Anda.",
+  ///},
   {
     icon: <LineChart className="w-10 h-10 text-primary" />,
-    title: "Progress Tracking",
+    title: "Lihat Perkembanganmu",
     description:
-      "Detailed analytics and insights about your mental health journey, with blockchain-verified session records.",
+      "Pantau kemajuan kesehatan mentalmu dari waktu ke waktu melalui laporan yang jelas dan mudah dipahami.",
   },
   {
     icon: <Fingerprint className="w-10 h-10 text-primary" />,
-    title: "Privacy First",
+    title: "Privasi Terjaga",
     description:
-      "End-to-end encryption and zero-knowledge proofs ensure your data remains completely confidential.",
+      "Datamu dijamin 100% rahasia. Dengan teknologi enkripsi canggih, hanya kamu yang bisa mengakses informasimu.",
   },
-  {
-    icon: <Heart className="w-10 h-10 text-primary" />,
-    title: "Holistic Care",
-    description:
-      "Integration with wearables and health providers for comprehensive mental wellness monitoring.",
-  },
+  ///{
+  ///  icon: <Heart className="w-10 h-10 text-primary" />,
+  ///  title: "Perawatan Holistik",
+  ///  description:
+  ///    "Integrasi dengan perangkat wearable dan penyedia layanan kesehatan untuk pemantauan kesehatan mental yang komprehensif.",
+  ///},
 ];
 
 export default function FeaturesPage() {
@@ -74,12 +74,10 @@ export default function FeaturesPage() {
         className="text-center mb-16"
       >
         <h1 className="text-4xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-          Platform Features
+          Fitur Unggulan Kami
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Discover how our AI-powered platform revolutionizes mental health
-          support with cutting-edge technology and unwavering privacy
-          protection.
+          Lihat bagaimana aplikasi AI kami mengubah cara mendapatkan dukungan kesehatan mental, dengan teknologi canggih yang selalu menjaga privasimu.
         </p>
       </motion.div>
 
@@ -106,16 +104,15 @@ export default function FeaturesPage() {
         transition={{ duration: 0.5, delay: 0.8 }}
         className="text-center mt-16"
       >
-        <h2 className="text-2xl font-semibold mb-4">Ready to Get Started?</h2>
+        <h2 className="text-2xl font-semibold mb-4">Siap Memulai?</h2>
         <p className="text-muted-foreground mb-8">
-          Join thousands of users benefiting from AI-powered mental health
-          support.
+          Ayo gabung dengan ribuan orang lainnya yang sudah merasakan manfaat dukungan kesehatan mental dari AI kami.
         </p>
         <a
           href="/dashboard"
           className="inline-flex items-center px-6 py-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
         >
-          Start Your Journey
+          Mulai Sekarang
           <Heart className="ml-2 w-5 h-5" />
         </a>
       </motion.div>
