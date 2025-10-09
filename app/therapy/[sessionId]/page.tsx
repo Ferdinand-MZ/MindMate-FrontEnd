@@ -621,7 +621,7 @@ export default function TherapyPage() {
                           <div className="flex items-center justify-between">
                             <p className="font-medium text-sm">
                               {msg.role === "assistant"
-                                ? "AI Therapist"
+                                ? "MindMate"
                                 : "You"}
                             </p>
                             {msg.metadata?.technique && (
