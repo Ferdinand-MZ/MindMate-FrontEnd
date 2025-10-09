@@ -102,7 +102,7 @@ export default function Home() {
       color: "from-blue-500/20",
       delay: 0.8,
     },
-  ];
+];
 
   return (
     <div className="flex flex-col min-h-screen overflow-hidden">

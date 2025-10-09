@@ -7,7 +7,7 @@ import {
   Menu,
   X,
   MessageCircle,
-  AudioWaveform,
+  BotMessageSquare,
   LogOut,
   LogIn,
 } from "lucide-react";
@@ -35,7 +35,7 @@ export function Header() {
             href="/"
             className="flex items-center space-x-2 transition-opacity hover:opacity-80"
           >
-            <AudioWaveform className="h-7 w-7 text-primary animate-pulse-gentle" />
+            <BotMessageSquare   className="h-7 w-7 text-primary animate-pulse-gentle" />
             <div className="flex flex-col">
               <span className="font-semibold text-lg bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
                 MindMate

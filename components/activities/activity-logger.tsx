@@ -27,7 +27,7 @@ import { logActivity } from "@/lib/api/activity";
 const activityTypes = [
   { id: "Meditasi", name: "Meditasi" },
   { id: "Olahraga", name: "Olahraga" },
-  { id: "walking", name: "Walking" },
+  { id: "Berjalan", name: "Berjalan" },
   { id: "Membaca", name: "Membaca" },
   { id: "Menulis Jurnal", name: "Menulis Jurnal" },
   { id: "therapy", name: "Sesi Terapi" },

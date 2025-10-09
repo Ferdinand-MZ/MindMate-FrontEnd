@@ -431,6 +431,7 @@ export default function TherapyPage() {
                 <MessageSquare className="w-4 h-4" />
               )}
               Sesi Baru
+              Sesi Baru
             </Button>
           </div>
 
@@ -495,6 +496,7 @@ export default function TherapyPage() {
               <div>
                 <h2 className="font-semibold">Terapis AI</h2>
                 <p className="text-sm text-muted-foreground">
+                  {messages.length} pesan
                   {messages.length} pesan
                 </p>
               </div>
