@@ -1,0 +1,319 @@
+"use client";
+
+import id from 'date-fns/locale/id';
+import { useState, useEffect, useCallback } from "react";
+import { motion } from "framer-motion";
+import {
+  Brain,
+  Calendar,
+  Activity,
+  Sun,
+  Moon,
+  Heart,
+  Trophy,
+  Bell,
+  Loader2,
+  MessageSquare,
+  BrainCircuit,
+  ArrowRight,
+  Sparkles,
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Container } from "@/components/ui/container";
+import { cn } from "@/lib/utils";
+
+import { AnxietyGames } from "@/components/games/anxiety-games";
+import { CBTQuiz } from "@/components/mood/cbt-quiz";
+import { ActivityLogger } from "@/components/activities/activity-logger";
+import { useSession } from "@/lib/contexts/session-context";
+
+import { getUserActivities, logActivity } from "@/lib/static-dashboard-data";
+import { useRouter } from "next/navigation";
+import { addDays, format, subDays, startOfDay, isWithinInterval } from "date-fns";
+
+// ------------------------- Types -------------------------
+type ActivityLevel = "none" | "low" | "medium" | "high";
+
+interface Activity {
+  id: string;
+  userId: string | null;
+  type: string;
+  name: string;
+  description: string | null;
+  timestamp: Date;
+  duration: number | null;
+  completed: boolean;
+  moodScore: number | null;
+  moodNote: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface DailyStats {
+  moodScore: number | null;
+  completionRate: number;
+  mindfulnessCount: number;
+  totalActivities: number;
+  lastUpdated: Date;
+}
+
+// ------------------------- Utils -------------------------
+const calculateDailyStats = (activities: Activity[]): DailyStats => {
+  const today = startOfDay(new Date());
+  const todaysActivities = activities.filter((activity) =>
+    isWithinInterval(new Date(activity.timestamp), { start: today, end: addDays(today, 1) })
+  );
+
+  const moodEntries = todaysActivities.filter(a => a.type === "cbt" && a.moodScore !== null);
+  const averageMood =
+    moodEntries.length > 0
+      ? Math.round(moodEntries.reduce((acc, curr) => acc + (curr.moodScore || 0), 0) / moodEntries.length)
+      : null;
+
+  const therapySessions = activities.filter(a => a.type === "therapy").length;
+
+  return {
+    moodScore: averageMood,
+    completionRate: 100,
+    mindfulnessCount: therapySessions,
+    totalActivities: todaysActivities.length,
+    lastUpdated: new Date(),
+  };
+};
+
+// ------------------------- Component -------------------------
+export default function Dashboard() {
+  const [mounted, setMounted] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const router = useRouter();
+  const { user } = useSession();
+
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [dailyStats, setDailyStats] = useState<DailyStats>({
+    moodScore: null,
+    completionRate: 100,
+    mindfulnessCount: 0,
+    totalActivities: 0,
+    lastUpdated: new Date(),
+  });
+  const [showCBTModal, setShowCBTModal] = useState(false);
+  const [showActivityLogger, setShowActivityLogger] = useState(false);
+
+  const loadActivities = useCallback(async () => {
+    try {
+      const userActivities = await getUserActivities("default-user");
+      setActivities(userActivities);
+    } catch (error) {
+      console.error("Error loading activities:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    setMounted(true);
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (activities.length > 0) {
+      setDailyStats(calculateDailyStats(activities));
+    }
+  }, [activities]);
+
+  useEffect(() => {
+    loadActivities();
+  }, [loadActivities]);
+
+  const handleStartTherapy = () => router.push("/therapy/new");
+
+  const handleCBTSubmit = async (averageScore: number) => {
+    try {
+      await logActivity({
+        userId: "default-user",
+        type: "cbt",
+        name: "CBT Check-in",
+        description: "User submitted CBT mood check-in",
+        timestamp: new Date(),
+        duration: 0,
+        completed: true,
+        moodScore: averageScore,
+      });
+      setShowCBTModal(false);
+      loadActivities();
+    } catch (error) {
+      console.error("Error saving CBT check-in:", error);
+    }
+  };
+
+  const handleGamePlayed = useCallback(
+    async (gameName: string, description: string) => {
+      try {
+        await logActivity({
+          userId: "default-user",
+          type: "game",
+          name: gameName,
+          description,
+          timestamp: new Date(),
+          duration: 0,
+          completed: true,
+        });
+        loadActivities();
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [loadActivities]
+  );
+
+  if (!mounted)
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      </div>
+    );
+
+  const wellnessStats = [
+    {
+      title: "Skor Mood",
+      value: dailyStats.moodScore ? `${dailyStats.moodScore}%` : "No data",
+      icon: Brain,
+      color: "text-purple-500",
+      bgColor: "bg-purple-500/10",
+      description: "Rata rata mood hari ini",
+    },
+    {
+      title: "Tingkat Selesai",
+      value: "100%",
+      icon: Trophy,
+      color: "text-yellow-500",
+      bgColor: "bg-yellow-500/10",
+      description: "sempurna",
+    },
+    {
+      title: "Sesi Terapi",
+      value: `${dailyStats.mindfulnessCount} sessions`,
+      icon: Heart,
+      color: "text-rose-500",
+      bgColor: "bg-rose-500/10",
+      description: "Total sesi selesai",
+    },
+    {
+      title: "Total Aktivitas",
+      value: dailyStats.totalActivities.toString(),
+      icon: Activity,
+      color: "text-blue-500",
+      bgColor: "bg-blue-500/10",
+      description: "Direncanakan hari ini",
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Container className="pt-20 pb-8 space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="space-y-2"
+          >
+            <h1 className="text-3xl font-bold text-foreground">
+              Selamat Datang, {user?.name || "teman"}
+            </h1>
+            <p className="text-muted-foreground">
+              {currentTime.toLocaleDateString("id-ID", {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+              })}
+            </p>
+          </motion.div>
+          <Button variant="outline" size="icon">
+            <Bell className="h-5 w-5" />
+          </Button>
+        </div>
+
+        {/* Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Quick Actions Card */}
+          <Card className="border-primary/10 relative overflow-hidden group">
+            <CardContent className="p-6 relative space-y-6">
+              <Button
+                variant="default"
+                className="w-full justify-between items-center p-6 h-auto"
+                onClick={handleStartTherapy}
+              >
+                Mulai Terapi
+              </Button>
+
+              <div className="grid grid-cols-2 gap-3">
+                {/* CBT Check-in */}
+                <Button
+                  variant="outline"
+                  className="flex flex-col h-[120px] px-4 py-3 justify-center items-center text-center"
+                  onClick={() => setShowCBTModal(true)}
+                >
+                  <div className="font-medium text-sm">CBT Check-in</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    Periksa suasana hati Anda
+                  </div>
+                </Button>
+
+                <Button
+                  variant="outline"
+                  className="flex flex-col h-[120px] px-4 py-3 justify-center items-center text-center"
+                  onClick={() => setShowActivityLogger(true)}
+                >
+                  <div className="font-medium text-sm">Check-in</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    Pemeriksaan singkat
+                  </div>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Today's Overview */}
+          <Card className="border-primary/10">
+            <CardHeader>
+              <CardTitle>Overview Hari ini</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-3">
+                {wellnessStats.map(stat => (
+                  <div key={stat.title} className={cn("p-4 rounded-lg", stat.bgColor)}>
+                    <div className="flex items-center gap-2">
+                      <stat.icon className={cn("w-5 h-5", stat.color)} />
+                      <p className="text-sm font-medium">{stat.title}</p>
+                    </div>
+                    <p className="text-2xl font-bold mt-2">{stat.value}</p>
+                    <p className="text-sm text-muted-foreground mt-1">{stat.description}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Anxiety Games */}
+          <AnxietyGames onGamePlayed={handleGamePlayed} />
+        </div>
+      </Container>
+
+      {/* CBT Modal */}
+      <CBTQuiz open={showCBTModal} onFinish={handleCBTSubmit} />
+      {/* Activity Logger */}
+      <ActivityLogger
+        open={showActivityLogger}
+        onOpenChange={setShowActivityLogger}
+        onActivityLogged={loadActivities}
+      />
+    </div>
+  );
+}

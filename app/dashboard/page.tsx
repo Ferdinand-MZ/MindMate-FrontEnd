@@ -374,7 +374,7 @@ export default function Dashboard() {
       const sessions = await getAllChatSessions();
 
       // Fetch today's activities
-      const activitiesResponse = await fetch("/api/activities/today");
+      const activitiesResponse = await fetch("/api/activity/today");
       if (!activitiesResponse.ok) throw new Error("Failed to fetch activities");
       const activities = await activitiesResponse.json();
 
@@ -781,3 +781,4 @@ export default function Dashboard() {
     </div>
   );
 }
+
