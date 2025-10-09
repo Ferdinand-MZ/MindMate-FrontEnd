@@ -48,3 +48,30 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export async function GET(req: NextRequest) {
+  const API_URL = process.env.BACKEND_API_URL || "http://localhost:3001";
+  const token = req.headers.get("Authorization");
+
+  if (!token) {
+    return NextResponse.json({ message: "No token provided" }, { status: 401 });
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/api/activity/activities/count`, {
+      method: "GET",
+      headers: { Authorization: token },
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      return NextResponse.json(err, { status: response.status });
+    }
+
+    const data = await response.json();
+    return NextResponse.json({ totalActivities: data.totalActivities });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}

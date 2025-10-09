@@ -1,6 +1,5 @@
 "use client";
 
-import { fetchTotalActivitiesAPI } from "@/lib/api/activity";
 import id from 'date-fns/locale/id';
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
@@ -101,8 +100,6 @@ interface DailyStats {
   totalActivities: number;
   lastUpdated: Date;
 }
-
-
 
 // Update the calculateDailyStats function to show correct stats
 const calculateDailyStats = (activities: Activity[]): DailyStats => {
@@ -415,22 +412,6 @@ export default function Dashboard() {
     }
   }, []);
 
-useEffect(() => {
-  const loadTotalActivities = async () => {
-    try {
-      const total = await fetchTotalActivitiesAPI();
-      setDailyStats((prev) => ({
-        ...prev,
-        totalActivities: total,
-      }));
-    } catch (error) {
-      console.error("Error fetching total activities:", error);
-    }
-  };
-
-  loadTotalActivities();
-}, []);
-
   // Fetch stats on mount and every 5 minutes
   useEffect(() => {
     fetchDailyStats();
@@ -464,37 +445,20 @@ useEffect(() => {
       bgColor: "bg-rose-500/10",
       description: "Total sesi selesai",
     },
-    // {
-    //   title: "Total Aktivitas",
-    //   value: dailyStats.totalActivities.toString(),
-    //   icon: Activity,
-    //   color: "text-blue-500",
-    //   bgColor: "bg-blue-500/10",
-    //   description: "Direncanakan hari ini",
-    // },
     {
-  title: "Total Aktivitas",
-  value: dailyStats.totalActivities.toString(),
-  icon: Activity,
-  color: "text-blue-500",
-  bgColor: "bg-blue-500/10",
-  description: "Direncanakan hari ini",
-}
-
+      title: "Total Aktivitas",
+      value: dailyStats.totalActivities.toString(),
+      icon: Activity,
+      color: "text-blue-500",
+      bgColor: "bg-blue-500/10",
+      description: "Direncanakan hari ini",
+    },
   ];
 
   // Load activities on mount
   useEffect(() => {
     loadActivities();
   }, [loadActivities]);
-  const refreshTotalActivities = useCallback(async () => {
-  try {
-    const total = await fetchTotalActivitiesAPI();
-    setDailyStats((prev) => ({ ...prev, totalActivities: total }));
-  } catch (error) {
-    console.error("Error fetching total activities:", error);
-  }
-}, []);
 
   // Add these action handlers
   const handleStartTherapy = () => {
@@ -550,10 +514,6 @@ useEffect(() => {
       </div>
     );
   }
-
-
-
-
 
   return (
     <div className="min-h-screen bg-background">
