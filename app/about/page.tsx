@@ -7,28 +7,28 @@ import { Heart, Target, Sparkles } from "lucide-react";
 const missions = [
   {
     icon: <Heart className="w-8 h-8 text-primary" />,
-    title: "Our Mission",
+    title: "Misi Kami",
     description:
-      "To democratize access to mental health support through ethical AI and blockchain technology, making quality therapeutic care available to everyone, everywhere, at any time.",
+      "Mendemokratisasi akses terhadap dukungan kesehatan mental melalui AI yang etis, membuat perawatan terapeutik berkualitas tersedia untuk semua orang, di mana saja, dan kapan saja.",
   },
   {
     icon: <Target className="w-8 h-8 text-primary" />,
-    title: "Our Vision",
+    title: "Visi Kami",
     description:
-      "A world where mental health support is accessible, private, and personalized, powered by trusted AI agents and secured by blockchain technology.",
+      "Mewujudkan dunia di mana dukungan kesehatan mental dapat diakses, bersifat pribadi, dan personal, didukung oleh agen AI tepercaya.",
   },
   {
     icon: <Sparkles className="w-8 h-8 text-primary" />,
-    title: "Our Values",
+    title: "Nilai-Nilai Kami",
     description:
-      "Privacy, Innovation, Empathy, and Trust form the cornerstone of our platform, ensuring the highest standards of care and security.",
+      "Privasi, Inovasi, Empati, dan Kepercayaan menjadi landasan platform kami, untuk memastikan standar perawatan dan keamanan tertinggi bagi pengguna.",
   },
 ];
 
 export default function AboutPage() {
   return (
     <div className="container mx-auto px-4 py-24">
-      {/* Hero Section */}
+      {/* Bagian Utama */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -36,15 +36,14 @@ export default function AboutPage() {
         className="text-center mb-20"
       >
         <h1 className="text-4xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-          About Aura3.0
+          Tentang MindMate
         </h1>
         <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-          We're revolutionizing mental health support by combining cutting-edge
-          AI technology with the security and transparency of blockchain.
+        Kami merevolusi dukungan kesehatan mental menggunakan teknologi AI canggih, demi menciptakan pengalaman terapi yang sepenuhnya rahasia dan tepercaya.
         </p>
       </motion.div>
 
-      {/* Mission Cards */}
+      {/* Kartu Misi */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
         {missions.map((mission, index) => (
           <motion.div

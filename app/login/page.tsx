@@ -39,7 +39,7 @@ export default function LoginPage() {
       setError(
         err instanceof Error
           ? err.message
-          : "Invalid email or password. Please try again."
+          : "Email atau kata sandi salah. Silakan coba lagi."
       );
     } finally {
       setLoading(false);
@@ -52,10 +52,10 @@ export default function LoginPage() {
         <Card className="w-full md:w-5/12 max-w-2xl p-8 md:p-10 rounded-3xl shadow-2xl border border-primary/10 bg-card/90 backdrop-blur-lg mt-12">
           <div className="mb-6 text-center">
             <h1 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent mb-1 tracking-tight">
-              Sign In
+              Masuk
             </h1>
             <p className="text-base text-muted-foreground font-medium">
-              Welcome back! Please sign in to continue your journey.
+              Selamat datang kembali! Silakan masuk untuk melanjutkan perjalanan Anda.
             </p>
           </div>
           <form className="space-y-6" onSubmit={handleSubmit}>
@@ -72,7 +72,7 @@ export default function LoginPage() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="Enter your email"
+                    placeholder="Masukkan email Anda"
                     className="pl-12 py-2 text-base rounded-xl bg-card bg-opacity-80 border border-primary focus:outline-none focus:ring-2 focus:ring-primary text-white placeholder:text-muted-foreground"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -85,14 +85,14 @@ export default function LoginPage() {
                   htmlFor="password"
                   className="block text-base font-semibold mb-1"
                 >
-                  Password
+                  Kata Sandi
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
                     id="password"
                     type="password"
-                    placeholder="Enter your password"
+                    placeholder="Masukkan kata sandi Anda"
                     className="pl-12 py-2 text-base rounded-xl bg-card bg-opacity-80 border border-primary focus:outline-none focus:ring-2 focus:ring-primary text-white placeholder:text-muted-foreground"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -112,27 +112,27 @@ export default function LoginPage() {
               type="submit"
               disabled={loading}
             >
-              {loading ? "Signing in..." : "Sign In"}
+              {loading ? "Sedang masuk..." : "Masuk"}
             </Button>
           </form>
           <div className="my-6 border-t border-primary/10" />
           <div className="flex flex-col items-center gap-2">
             <div className="flex items-center justify-center gap-2 text-sm">
               <span className="text-muted-foreground">
-                Don&apos;t have an account?
+                Belum punya akun?
               </span>
               <Link
                 href="/signup"
                 className="text-primary font-semibold underline hover:text-primary/80 transition-colors"
               >
-                Sign up
+                Daftar
               </Link>
               <span className="text-muted-foreground">·</span>
               <Link
                 href="/forgot-password"
                 className="text-primary underline hover:text-primary/80 transition-colors"
               >
-                Forgot password?
+                Lupa kata sandi?
               </Link>
             </div>
           </div>

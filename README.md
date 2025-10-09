@@ -12,7 +12,7 @@
 
 <div align="center">
   <img src="https://i.imghippo.com/files/uath6507iKU.png" alt="Aura Dashboard" width="45%" />
-  <img src="https://i.imghippo.com/files/CBbx8767gPg.png" alt="Therapy Session" width="45%" />
+  <img src="https://i.imghippo.com/files/CBbx8767gPg.png" alt="Sesi Terapi" width="45%" />
 </div>
 
 <div align="center">
@@ -37,7 +37,7 @@
   - Real-time crisis detection and emergency protocols
   - Continuous learning and improvement system
 
-### 🎨 Blockchain-Secured Therapy Sessions
+### 🎨 Blockchain-Secured Sesi Terapis
 
 - **Smart Contract Architecture**
 
@@ -62,7 +62,7 @@
   - Granular consent management system
 
 - **NFT-Based Progress Tracking**
-  - ERC-721 therapy session certificates
+  - ERC-721 Sesi Terapi certificates
   - Achievement-based milestone NFTs
   - Privacy-preserving metadata structure
   - Verifiable progress records
@@ -71,10 +71,10 @@
 
 - **Mindfulness Activities**
 
-  - Breathing exercises with visual guidance
+  - Breathing Olahragas with visual guidance
   - Digital Zen garden for stress relief
   - Virtual forest walks
-  - Ocean wave meditation
+  - Ocean wave Meditasi
 
 - **Smart Environment Integration**
   - IoT device synchronization
@@ -119,7 +119,7 @@ class TherapyAgentConfig {
 - **Blockchain Security**
 
   - Smart contract auditing
-  - Multi-signature therapy session validation
+  - Multi-signature Sesi Terapi validation
   - Encrypted on-chain storage
   - Automated security monitoring
 

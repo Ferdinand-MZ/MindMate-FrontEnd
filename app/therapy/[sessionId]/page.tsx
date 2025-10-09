@@ -42,6 +42,7 @@ import {
 } from "@/lib/api/chat";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
+import { id as indonesiaLocale } from "date-fns/locale"; // <-- Import locale Indonesia
 import { Separator } from "@/components/ui/separator";
 
 interface SuggestedQuestion {
@@ -68,10 +69,10 @@ interface ApiResponse {
 }
 
 const SUGGESTED_QUESTIONS = [
-  { text: "How can I manage my anxiety better?" },
-  { text: "I've been feeling overwhelmed lately" },
-  { text: "Can we talk about improving sleep?" },
-  { text: "I need help with work-life balance" },
+  { text: "Bagaimana cara mengelola kecemasan saya dengan lebih baik?" },
+  { text: "Akhir-akhir ini saya merasa sangat terbebani" },
+  { text: "Bisakah kita membahas cara meningkatkan kualitas tidur?" },
+  { text: "Saya butuh bantuan untuk keseimbangan kerja dan kehidupan" },
 ];
 
 const glowAnimation = {
@@ -114,7 +115,6 @@ export default function TherapyPage() {
       const newSessionId = await createChatSession();
       console.log("New session created:", newSessionId);
 
-      // Update sessions list immediately
       const newSession: ChatSession = {
         sessionId: newSessionId,
         messages: [],
@@ -122,15 +122,10 @@ export default function TherapyPage() {
         updatedAt: new Date(),
       };
 
-      // Update all state in one go
       setSessions((prev) => [newSession, ...prev]);
       setSessionId(newSessionId);
       setMessages([]);
-
-      // Update URL without refresh
       window.history.pushState({}, "", `/therapy/${newSessionId}`);
-
-      // Force a re-render of the chat area
       setIsLoading(false);
     } catch (error) {
       console.error("Failed to create new session:", error);
@@ -138,7 +133,6 @@ export default function TherapyPage() {
     }
   };
 
-  // Initialize chat session and load history
   useEffect(() => {
     const initChat = async () => {
       try {
@@ -176,7 +170,7 @@ export default function TherapyPage() {
           {
             role: "assistant",
             content:
-              "I apologize, but I'm having trouble loading the chat session. Please try refreshing the page.",
+              "Mohon maaf, saya mengalami kendala saat memuat sesi obrolan. Silakan coba muat ulang halaman.",
             timestamp: new Date(),
           },
         ]);
@@ -184,11 +178,9 @@ export default function TherapyPage() {
         setIsLoading(false);
       }
     };
-
     initChat();
   }, [sessionId]);
 
-  // Load all chat sessions
   useEffect(() => {
     const loadSessions = async () => {
       try {
@@ -198,7 +190,6 @@ export default function TherapyPage() {
         console.error("Failed to load sessions:", error);
       }
     };
-
     loadSessions();
   }, [messages]);
 
@@ -239,7 +230,6 @@ export default function TherapyPage() {
     setIsTyping(true);
 
     try {
-      // Add user message
       const userMessage: ChatMessage = {
         role: "user",
         content: currentMessage,
@@ -247,7 +237,6 @@ export default function TherapyPage() {
       };
       setMessages((prev) => [...prev, userMessage]);
 
-      // Check for stress signals
       const stressCheck = detectStressSignals(currentMessage);
       if (stressCheck) {
         setStressPrompt(stressCheck);
@@ -256,22 +245,19 @@ export default function TherapyPage() {
       }
 
       console.log("Sending message to API...");
-      // Send message to API
       const response = await sendChatMessage(sessionId, currentMessage);
       console.log("Raw API response:", response);
 
-      // Parse the response if it's a string
       const aiResponse =
         typeof response === "string" ? JSON.parse(response) : response;
       console.log("Parsed AI response:", aiResponse);
 
-      // Add AI response with metadata
       const assistantMessage: ChatMessage = {
         role: "assistant",
         content:
           aiResponse.response ||
           aiResponse.message ||
-          "I'm here to support you. Could you tell me more about what's on your mind?",
+          "Saya di sini untuk mendukung Anda. Bisa ceritakan lebih lanjut apa yang ada di pikiran Anda?",
         timestamp: new Date(),
         metadata: {
           analysis: aiResponse.analysis || {
@@ -291,8 +277,6 @@ export default function TherapyPage() {
       };
 
       console.log("Created assistant message:", assistantMessage);
-
-      // Add the message immediately
       setMessages((prev) => [...prev, assistantMessage]);
       setIsTyping(false);
       scrollToBottom();
@@ -303,7 +287,7 @@ export default function TherapyPage() {
         {
           role: "assistant",
           content:
-            "I apologize, but I'm having trouble connecting right now. Please try again in a moment.",
+            "Mohon maaf, saya sedang kesulitan terhubung saat ini. Silakan coba lagi sesaat lagi.",
           timestamp: new Date(),
         },
       ]);
@@ -325,16 +309,8 @@ export default function TherapyPage() {
 
   const detectStressSignals = (message: string): StressPrompt | null => {
     const stressKeywords = [
-      "stress",
-      "anxiety",
-      "worried",
-      "panic",
-      "overwhelmed",
-      "nervous",
-      "tense",
-      "pressure",
-      "can't cope",
-      "exhausted",
+      "stres", "cemas", "khawatir", "panik", "terbebani", "gugup",
+      "tegang", "tertekan", "tidak sanggup", "lelah",
     ];
 
     const lowercaseMsg = message.toLowerCase();
@@ -346,27 +322,25 @@ export default function TherapyPage() {
       const activities = [
         {
           type: "breathing" as const,
-          title: "Breathing Exercise",
-          description:
-            "Follow calming breathing exercises with visual guidance",
+          title: "Latihan Pernapasan",
+          description: "Ikuti latihan pernapasan menenangkan dengan panduan visual",
         },
         {
           type: "garden" as const,
-          title: "Zen Garden",
-          description: "Create and maintain your digital peaceful space",
+          title: "Taman Zen",
+          description: "Ciptakan dan rawat ruang digital Anda yang damai",
         },
         {
           type: "forest" as const,
-          title: "Mindful Forest",
-          description: "Take a peaceful walk through a virtual forest",
+          title: "Hutan Meditasi",
+          description: "Jalan-jalan santai di hutan virtual yang menenangkan",
         },
         {
           type: "waves" as const,
-          title: "Ocean Waves",
-          description: "Match your breath with gentle ocean waves",
+          title: "Ombak Lautan",
+          description: "Sesuaikan napas Anda dengan ombak laut yang lembut",
         },
       ];
-
       return {
         trigger: foundKeyword,
         activity: activities[Math.floor(Math.random() * activities.length)],
@@ -382,7 +356,6 @@ export default function TherapyPage() {
       setSessionId(newSessionId);
       router.push(`/therapy/${newSessionId}`);
     }
-
     setMessage(text);
     setTimeout(() => {
       const event = new Event("submit") as unknown as React.FormEvent;
@@ -431,7 +404,7 @@ export default function TherapyPage() {
         <div className="w-80 flex flex-col border-r bg-muted/30">
           <div className="p-4 border-b">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Chat Sessions</h2>
+              <h2 className="text-lg font-semibold">Sesi Obrolan</h2>
               <Button
                 variant="ghost"
                 size="icon"
@@ -457,7 +430,7 @@ export default function TherapyPage() {
               ) : (
                 <MessageSquare className="w-4 h-4" />
               )}
-              New Session
+              Sesi Baru
             </Button>
           </div>
 
@@ -477,29 +450,30 @@ export default function TherapyPage() {
                   <div className="flex items-center gap-2 mb-1">
                     <MessageSquare className="w-4 h-4" />
                     <span className="font-medium">
-                      {session.messages[0]?.content.slice(0, 30) || "New Chat"}
+                      {session.messages[0]?.content.slice(0, 30) || "Obrolan Baru"}
                     </span>
                   </div>
                   <p className="line-clamp-2 text-muted-foreground">
                     {session.messages[session.messages.length - 1]?.content ||
-                      "No messages yet"}
+                      "Belum ada pesan"}
                   </p>
                   <div className="flex items-center justify-between mt-2">
                     <span className="text-xs text-muted-foreground">
-                      {session.messages.length} messages
+                      {session.messages.length} pesan
                     </span>
                     <span className="text-xs text-muted-foreground">
                       {(() => {
                         try {
                           const date = new Date(session.updatedAt);
                           if (isNaN(date.getTime())) {
-                            return "Just now";
+                            return "Baru saja";
                           }
                           return formatDistanceToNow(date, {
                             addSuffix: true,
+                            locale: indonesiaLocale,
                           });
                         } catch (error) {
-                          return "Just now";
+                          return "Baru saja";
                         }
                       })()}
                     </span>
@@ -519,9 +493,9 @@ export default function TherapyPage() {
                 <Bot className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="font-semibold">AI Therapist</h2>
+                <h2 className="font-semibold">Terapis AI</h2>
                 <p className="text-sm text-muted-foreground">
-                  {messages.length} messages
+                  {messages.length} pesan
                 </p>
               </div>
             </div>
@@ -552,11 +526,11 @@ export default function TherapyPage() {
                         </motion.div>
                       </div>
                       <span className="bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent">
-                        AI Therapist
+                        Terapis AI
                       </span>
                     </div>
                     <p className="text-muted-foreground mt-2">
-                      How can I assist you today?
+                      Ada yang bisa saya bantu hari ini?
                     </p>
                   </div>
                 </div>
@@ -621,8 +595,8 @@ export default function TherapyPage() {
                           <div className="flex items-center justify-between">
                             <p className="font-medium text-sm">
                               {msg.role === "assistant"
-                                ? "AI Therapist"
-                                : "You"}
+                                ? "Terapis AI"
+                                : "Anda"}
                             </p>
                             {msg.metadata?.technique && (
                               <Badge variant="secondary" className="text-xs">
@@ -635,7 +609,7 @@ export default function TherapyPage() {
                           </div>
                           {msg.metadata?.goal && (
                             <p className="text-xs text-muted-foreground mt-2">
-                              Goal: {msg.metadata.goal}
+                              Tujuan: {msg.metadata.goal}
                             </p>
                           )}
                         </div>
@@ -656,8 +630,8 @@ export default function TherapyPage() {
                       </div>
                     </div>
                     <div className="flex-1 space-y-2">
-                      <p className="font-medium text-sm">AI Therapist</p>
-                      <p className="text-sm text-muted-foreground">Typing...</p>
+                      <p className="font-medium text-sm">Terapis AI</p>
+                      <p className="text-sm text-muted-foreground">Sedang mengetik...</p>
                     </div>
                   </motion.div>
                 )}
@@ -678,8 +652,8 @@ export default function TherapyPage() {
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder={
                     isChatPaused
-                      ? "Complete the activity to continue..."
-                      : "Ask me anything..."
+                      ? "Selesaikan aktivitas untuk melanjutkan..."
+                      : "Tanyakan apa saja..."
                   }
                   className={cn(
                     "w-full resize-none rounded-2xl border bg-background",
@@ -722,12 +696,12 @@ export default function TherapyPage() {
               </div>
             </form>
             <div className="mt-2 text-xs text-center text-muted-foreground">
-              Press <kbd className="px-2 py-0.5 rounded bg-muted">Enter ↵</kbd>{" "}
-              to send,
+              Tekan <kbd className="px-2 py-0.5 rounded bg-muted">Enter ↵</kbd>{" "}
+              untuk mengirim,
               <kbd className="px-2 py-0.5 rounded bg-muted ml-1">
                 Shift + Enter
               </kbd>{" "}
-              for new line
+              untuk baris baru
             </div>
           </div>
         </div>

@@ -25,39 +25,39 @@ import { OceanWaves } from "./ocean-waves";
 const games = [
   {
     id: "breathing",
-    title: "Breathing Patterns",
-    description: "Follow calming breathing exercises with visual guidance",
+    title: "Pola Pernapasan",
+    description: "Ikuti latihan pernapasan menenangkan dengan panduan visual",
     icon: Wind,
     color: "text-blue-500",
     bgColor: "bg-blue-500/10",
-    duration: "5 mins",
+    duration: "5 menit",
   },
   {
     id: "garden",
-    title: "Zen Garden",
-    description: "Create and maintain your digital peaceful space",
+    title: "Taman Zen",
+    description: "Ciptakan dan rawat ruang digital Anda yang damai",
     icon: Flower2,
     color: "text-rose-500",
     bgColor: "bg-rose-500/10",
-    duration: "10 mins",
+    duration: "10 menit",
   },
   {
     id: "forest",
-    title: "Mindful Forest",
-    description: "Take a peaceful walk through a virtual forest",
+    title: "Hutan Meditasi",
+    description: "Jalan-jalan santai di hutan virtual yang menenangkan",
     icon: TreePine,
     color: "text-green-500",
     bgColor: "bg-green-500/10",
-    duration: "15 mins",
+    duration: "15 menit",
   },
   {
     id: "waves",
-    title: "Ocean Waves",
-    description: "Match your breath with gentle ocean waves",
+    title: "Ombak Lautan",
+    description: "Sesuaikan napas Anda dengan ombak laut yang lembut",
     icon: Waves,
     color: "text-cyan-500",
     bgColor: "bg-cyan-500/10",
-    duration: "8 mins",
+    duration: "8 menit",
   },
 ];
 
@@ -73,7 +73,6 @@ export const AnxietyGames = ({ onGamePlayed }: AnxietyGamesProps) => {
     setSelectedGame(gameId);
     setShowGame(true);
 
-    // Log the activity
     if (onGamePlayed) {
       try {
         await onGamePlayed(
@@ -107,10 +106,10 @@ export const AnxietyGames = ({ onGamePlayed }: AnxietyGamesProps) => {
         <CardHeader>
           <CardTitle className="text-xl font-semibold flex items-center gap-2">
             <Gamepad2 className="h-5 w-5 text-primary" />
-            Anxiety Relief Activities
+            Aktivitas Pereda Cemas
           </CardTitle>
           <CardDescription>
-            Interactive exercises to help reduce stress and anxiety
+            Latihan interaktif untuk membantu mengurangi stres dan kecemasan
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -155,10 +154,7 @@ export const AnxietyGames = ({ onGamePlayed }: AnxietyGamesProps) => {
 
           {selectedGame && (
             <div className="mt-6 text-center">
-              <Button className="gap-2" onClick={() => setSelectedGame(null)}>
-                <Gamepad2 className="h-4 w-4" />
-                Start {games.find((g) => g.id === selectedGame)?.title}
-              </Button>
+              {/* Tombol ini sekarang tidak diperlukan karena permainan dimulai secara otomatis */}
             </div>
           )}
         </CardContent>

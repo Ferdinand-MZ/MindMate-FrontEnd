@@ -7,13 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
 
-const MEDITATION_DURATION = 5 * 60; // 5 minutes in seconds
+const Meditasi_DURATION = 5 * 60; // 5 minutes in seconds
 
 export function ForestGame() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(50);
   const [progress, setProgress] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(MEDITATION_DURATION);
+  const [timeLeft, setTimeLeft] = useState(Meditasi_DURATION);
   const [audioElements] = useState({
     birds: new Audio("/sounds/birds.mp3"),
     wind: new Audio("/sounds/wind.mp3"),
@@ -50,7 +50,7 @@ export function ForestGame() {
         setTimeLeft((prev) => {
           const newTime = prev - 1;
           setProgress(
-            ((MEDITATION_DURATION - newTime) / MEDITATION_DURATION) * 100
+            ((Meditasi_DURATION - newTime) / Meditasi_DURATION) * 100
           );
           return newTime;
         });
@@ -137,7 +137,7 @@ export function ForestGame() {
             )}
           </Button>
           <span className="text-sm text-muted-foreground">
-            {formatTime(MEDITATION_DURATION)}
+            {formatTime(Meditasi_DURATION)}
           </span>
         </div>
       </div>
