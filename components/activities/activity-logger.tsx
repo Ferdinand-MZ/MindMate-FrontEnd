@@ -29,7 +29,7 @@ const activityTypes = [
   { id: "Olahraga", name: "Olahraga" },
   { id: "Berjalan", name: "Berjalan" },
   { id: "Membaca", name: "Membaca" },
-  { id: "Menulis Jurnal", name: "Menulis Jurnal" },
+  { id: "Menjurnal", name: "Menulis Jurnal" },
   { id: "therapy", name: "Sesi Terapi" },
 ];
 

@@ -597,13 +597,8 @@ export default function TherapyPage() {
                           <div className="flex items-center justify-between">
                             <p className="font-medium text-sm">
                               {msg.role === "assistant"
-<<<<<<< HEAD
                                 ? "MindMate"
                                 : "You"}
-=======
-                                ? "Terapis AI"
-                                : "Anda"}
->>>>>>> 2dea39fc1f7ed9fca0e3ec5f2eddaa54dc7d96bb
                             </p>
                             {msg.metadata?.technique && (
                               <Badge variant="secondary" className="text-xs">
