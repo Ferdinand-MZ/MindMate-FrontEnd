@@ -346,6 +346,7 @@ export default function Dashboard() {
       console.error("Error loading activities:", error);
     }
   }, []);
+  
 
   useEffect(() => {
     setMounted(true);
@@ -368,41 +369,85 @@ export default function Dashboard() {
   }, [activities]);
 
   // Add function to fetch daily stats
-  const fetchDailyStats = useCallback(async () => {
-    try {
-      // Fetch therapy sessions using the chat API
-      const sessions = await getAllChatSessions();
+  // const fetchDailyStats = useCallback(async () => {
+  //   try {
+  //     // Fetch therapy sessions using the chat API
+  //     const sessions = await getAllChatSessions();
 
-      // Fetch today's activities
-      const activitiesResponse = await fetch("/api/activity/today");
-      if (!activitiesResponse.ok) throw new Error("Failed to fetch activities");
-      const activities = await activitiesResponse.json();
+  //     // Fetch today's activities
+  //     const activitiesResponse = await fetch("/api/activity/today");
+  //     if (!activitiesResponse.ok) throw new Error("Failed to fetch activities");
+  //     const activities = await activitiesResponse.json();
 
-      // Calculate mood score from activities
-      const moodEntries = activities.filter(
-        (a: Activity) => a.type === "mood" && a.moodScore !== null
-      );
-      const averageMood =
-        moodEntries.length > 0
-          ? Math.round(
-              moodEntries.reduce(
-                (acc: number, curr: Activity) => acc + (curr.moodScore || 0),
-                0
-              ) / moodEntries.length
-            )
-          : null;
+  //     // Calculate mood score from activities
+  //     const moodEntries = activities.filter(
+  //       (a: Activity) => a.type === "mood" && a.moodScore !== null
+  //     );
+  //     const averageMood =
+  //       moodEntries.length > 0
+  //         ? Math.round(
+  //             moodEntries.reduce(
+  //               (acc: number, curr: Activity) => acc + (curr.moodScore || 0),
+  //               0
+  //             ) / moodEntries.length
+  //           )
+  //         : null;
 
-      setDailyStats({
-        moodScore: averageMood,
-        completionRate: 100,
-        mindfulnessCount: sessions.length, // Total number of therapy sessions
-        totalActivities: activities.length,
-        lastUpdated: new Date(),
-      });
-    } catch (error) {
-      console.error("Error fetching daily stats:", error);
-    }
-  }, []);
+  //     setDailyStats({
+  //       moodScore: averageMood,
+  //       completionRate: 100,
+  //       mindfulnessCount: sessions.length, // Total number of therapy sessions
+  //       totalActivities: activities.length,
+  //       lastUpdated: new Date(),
+  //     });
+  //   } catch (error) {
+  //     console.error("Error fetching daily stats:", error);
+  //   }
+  // }, []);
+  
+  // Add function to fetch daily stats
+ const fetchDailyStats = useCallback(async () => {
+    try {
+      // 1. Fetch therapy sessions using the chat API
+      const sessions = await getAllChatSessions();
+
+      // 2. Use the existing, working local function to get ALL activities
+      const allActivities = await getUserActivities("default-user");
+
+      // 3. Filter for today's activities manually (mimicking the failed API route)
+      const today = startOfDay(new Date());
+      const activities: Activity[] = allActivities.filter((activity) =>
+        isWithinInterval(new Date(activity.timestamp), {
+          start: today,
+          end: addDays(today, 1),
+        })
+      );
+
+      // Calculate mood score from activities
+      const moodEntries = activities.filter(
+        (a: Activity) => a.type === "mood" && a.moodScore !== null
+      );
+      const averageMood =
+        moodEntries.length > 0
+          ? Math.round(
+              moodEntries.reduce(
+                (acc: number, curr: Activity) => acc + (curr.moodScore || 0),
+                0
+              ) / moodEntries.length
+            )
+          : null;
+
+      setDailyStats({
+        moodScore: averageMood,
+        completionRate: 100,
+        mindfulnessCount: sessions.length, // Total number of therapy sessions
+        totalActivities: activities.length,
+        lastUpdated: new Date(),
+      });
+    } catch (error) {
+      console.error("Error fetching daily stats:", error);
+    }
+  }, []);
 
   // Fetch stats on mount and every 5 minutes
   useEffect(() => {
