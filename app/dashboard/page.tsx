@@ -792,7 +792,7 @@ const refreshTotalActivities = useCallback(async () => {
             {/* Left side - Spans 2 columns */}
             <div className="lg:col-span-3 space-y-6">
               {/* Anxiety Games - Now directly below Fitbit */}
-              <AnxietyGames onGamePlayed={handleGamePlayed} />
+              <AnxietyGames/>
             </div>
           </div>
         </div>
