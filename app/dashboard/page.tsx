@@ -587,11 +587,11 @@ const refreshTotalActivities = useCallback(async () => {
             })}
           </p>
           </motion.div>
-          <div className="flex items-center gap-4">
+          {/* <div className="flex items-center gap-4">
             <Button variant="outline" size="icon">
               <Bell className="h-5 w-5" />
             </Button>
-          </div>
+          </div> */}
         </div>
 
         {/* Main Grid Layout */}
