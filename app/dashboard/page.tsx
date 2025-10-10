@@ -487,13 +487,22 @@ useEffect(() => {
   useEffect(() => {
     loadActivities();
   }, [loadActivities]);
-  const refreshTotalActivities = useCallback(async () => {
-  try {
-    const total = await fetchTotalActivitiesAPI();
-    setDailyStats((prev) => ({ ...prev, totalActivities: total }));
-  } catch (error) {
-    console.error("Error fetching total activities:", error);
-  }
+//   const refreshTotalActivities = useCallback(async () => {
+//   try {
+//     const total = await fetchTotalActivitiesAPI();
+//     setDailyStats((prev) => ({ ...prev, totalActivities: total }));
+//   } catch (error) {
+//     console.error("Error fetching total activities:", error);
+//   }
+// }, []);
+
+const refreshTotalActivities = useCallback(async () => {
+  try {
+    const total = await fetchTotalActivitiesAPI();
+    setDailyStats((prev) => ({ ...prev, totalActivities: total }));
+  } catch (error) {
+    console.error("Error fetching total activities:", error);
+  }
 }, []);
 
   // Add these action handlers
@@ -535,6 +544,8 @@ useEffect(() => {
 
         // Refresh activities after logging
         loadActivities();
+
+         refreshTotalActivities(); 
       } catch (error) {
         console.error("Error logging game activity:", error);
       }
@@ -685,7 +696,7 @@ useEffect(() => {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>Overview Hari ini</CardTitle>
+                    <CardTitle>Overview</CardTitle>
                     <CardDescription>
                       Metrik Kesehatan anda untuk tanggal{" "}
                       {format(new Date(), "d MMMM yyyy", { locale: id })}
@@ -824,7 +835,11 @@ useEffect(() => {
       <ActivityLogger
         open={showActivityLogger}
         onOpenChange={setShowActivityLogger}
-        onActivityLogged={loadActivities}
+        // onActivityLogged={loadActivities}
+        onActivityLogged={() => {
+        loadActivities();
+        refreshTotalActivities(); // Panggil fungsi refresh di sini juga
+      }}
       />
     </div>
   );
