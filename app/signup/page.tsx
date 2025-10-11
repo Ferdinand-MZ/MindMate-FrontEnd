@@ -46,7 +46,7 @@ export default function SignupPage() {
               Daftar Akun
             </h1>
             <p className="text-base text-muted-foreground font-medium">
-              Buat akun untuk memulai perjalanan Anda bersama Aura.
+              Buat akun untuk memulai perjalanan Anda bersama MindMate.
             </p>
           </div>
           <form className="space-y-6" onSubmit={handleSubmit}>

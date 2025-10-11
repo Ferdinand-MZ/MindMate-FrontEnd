@@ -23,7 +23,7 @@ export function Header() {
   console.log("Header: Auth state:", { isAuthenticated, user });
   const navItems = [
     { href: "/features", label: "Fitur" },
-    { href: "/about", label: "Tentang MindMate" },
+    { href: "/about", label: "Tentang" },
   ];
 
   return (
