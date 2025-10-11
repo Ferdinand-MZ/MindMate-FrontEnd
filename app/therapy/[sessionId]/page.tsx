@@ -1,6 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+// ... (import lainnya)
+import { MoodForm } from "@/components/mood/mood-form";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle 
+} from "@/components/ui/dialog";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -95,6 +103,7 @@ export default function TherapyPage() {
   const router = useRouter();
   const [message, setMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [isAssessmentModalOpen, setAssessmentModalOpen] = useState(false); 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [mounted, setMounted] = useState(false);
@@ -132,6 +141,35 @@ export default function TherapyPage() {
       setIsLoading(false);
     }
   };
+
+// Anda akan menambahkan kode ini ke dalam file app/therapy/[sessionId]/page.tsx
+
+useEffect(() => {
+    // 1. Membuat kunci unik untuk localStorage
+    const initialMessageKey = `mindmate_initial_message_${params.sessionId}`;
+
+    // 2. Mencari pesan di localStorage menggunakan kunci tersebut
+    const initialMessage = localStorage.getItem(initialMessageKey);
+
+    // 3. Jika pesan ditemukan...
+    if (initialMessage) {
+      // 4. Panggil fungsi untuk mengirim pesan
+      // Di kode Anda, fungsi ini bernama handleSubmit, tetapi kita panggil secara tidak langsung
+      
+      // Pertama, kita set pesan ke dalam state
+      setMessage(initialMessage);
+      
+      // Kedua, kita picu pengiriman form setelah state diupdate
+      setTimeout(() => {
+        // Membuat 'event' palsu untuk diserahkan ke handleSubmit
+        const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
+        handleSubmit(fakeEvent);
+      }, 100); // Penundaan singkat untuk memastikan state sudah terupdate
+
+      // 5. Hapus pesan dari localStorage
+      localStorage.removeItem(initialMessageKey);
+    }
+  }, [params.sessionId]); // 6. Efek ini hanya berjalan sekali saat session ID berubah
 
   useEffect(() => {
     const initChat = async () => {
@@ -207,93 +245,53 @@ export default function TherapyPage() {
     }
   }, [messages, isTyping]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Form submitted");
-    const currentMessage = message.trim();
-    console.log("Current message:", currentMessage);
-    console.log("Session ID:", sessionId);
-    console.log("Is typing:", isTyping);
-    console.log("Is chat paused:", isChatPaused);
+  // ✅ GANTI FUNGSI LAMA ANDA DENGAN YANG INI
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  const currentMessage = message.trim();
+  if (!currentMessage || isTyping || isChatPaused || !sessionId) {
+    return;
+  }
 
-    if (!currentMessage || isTyping || isChatPaused || !sessionId) {
-      console.log("Submission blocked:", {
-        noMessage: !currentMessage,
-        isTyping,
-        isChatPaused,
-        noSessionId: !sessionId,
-      });
-      return;
-    }
+  setMessage("");
+  setIsTyping(true);
 
-    setMessage("");
-    setIsTyping(true);
-
-    try {
-      const userMessage: ChatMessage = {
-        role: "user",
-        content: currentMessage,
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, userMessage]);
-
-      const stressCheck = detectStressSignals(currentMessage);
-      if (stressCheck) {
-        setStressPrompt(stressCheck);
-        setIsTyping(false);
-        return;
-      }
-
-      console.log("Sending message to API...");
-      const response = await sendChatMessage(sessionId, currentMessage);
-      console.log("Raw API response:", response);
-
-      const aiResponse =
-        typeof response === "string" ? JSON.parse(response) : response;
-      console.log("Parsed AI response:", aiResponse);
-
-      const assistantMessage: ChatMessage = {
-        role: "assistant",
-        content:
-          aiResponse.response ||
-          aiResponse.message ||
-          "Saya di sini untuk mendukung Anda. Bisa ceritakan lebih lanjut apa yang ada di pikiran Anda?",
-        timestamp: new Date(),
-        metadata: {
-          analysis: aiResponse.analysis || {
-            emotionalState: "neutral",
-            riskLevel: 0,
-            themes: [],
-            recommendedApproach: "supportive",
-            progressIndicators: [],
-          },
-          technique: aiResponse.metadata?.technique || "supportive",
-          goal: aiResponse.metadata?.currentGoal || "Provide support",
-          progress: aiResponse.metadata?.progress || {
-            emotionalState: "neutral",
-            riskLevel: 0,
-          },
-        },
-      };
-
-      console.log("Created assistant message:", assistantMessage);
-      setMessages((prev) => [...prev, assistantMessage]);
-      setIsTyping(false);
-      scrollToBottom();
-    } catch (error) {
-      console.error("Error in chat:", error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content:
-            "Mohon maaf, saya sedang kesulitan terhubung saat ini. Silakan coba lagi sesaat lagi.",
-          timestamp: new Date(),
-        },
-      ]);
-      setIsTyping(false);
-    }
+  const userMessage: ChatMessage = {
+    role: "user",
+    content: currentMessage,
+    timestamp: new Date(),
   };
+  setMessages((prev) => [...prev, userMessage]);
+
+  try {
+    // Memanggil fungsi sendChatMessage yang sudah benar
+    const aiResponse = await sendChatMessage(sessionId, currentMessage);
+
+    // Membuat pesan asisten berdasarkan struktur respons asli
+    const assistantMessage: ChatMessage = {
+      role: "assistant",
+      content:
+        aiResponse.response ||
+        aiResponse.message ||
+        "Maaf, saya tidak dapat memproses itu saat ini.",
+      timestamp: new Date(),
+      metadata: aiResponse.metadata, // Menggunakan metadata langsung
+    };
+
+    setMessages((prev) => [...prev, assistantMessage]);
+
+  } catch (error) {
+    console.error("Gagal mengirim atau menerima pesan chat:", error);
+    const errorMessage: ChatMessage = {
+      role: "assistant",
+      content: `Mohon maaf, terjadi kesalahan saat menghubungi terapis AI. Silakan coba lagi.`,
+      timestamp: new Date(),
+    };
+    setMessages((prev) => [...prev, errorMessage]);
+  } finally {
+    setIsTyping(false);
+  }
+};
 
   useEffect(() => {
     setMounted(true);
@@ -708,6 +706,19 @@ export default function TherapyPage() {
           </div>
         </div>
       </div>
+      <Dialog open={isAssessmentModalOpen} onOpenChange={setAssessmentModalOpen}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Asesmen Kesehatan Mental</DialogTitle>
+        </DialogHeader>
+        <MoodForm
+          onFinished={() => {
+            // Fungsi ini akan menutup modal setelah kuesioner disubmit
+            setAssessmentModalOpen(false);
+          }}
+        />
+      </DialogContent>
+    </Dialog>
     </div>
   );
 }

@@ -1,91 +1,107 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
-import { Loader2 } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
-import { useSession } from "@/lib/contexts/session-context";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { createChatSession } from "@/lib/api/chat";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
-interface MoodFormProps {
-  onSuccess?: () => void;
-}
+// Daftar pertanyaan untuk kuesioner (pertanyaan lama + baru)
+const questions = [
+  { id: "q1", text: "Apakah anda merasa cemas atau khawatir sepanjang hari ini ?" },
+  { id: "q2", text: "Apakah anda merasa sangat lelah atau tidak bertenaga ?" },
+  { id: "q3", text: "Apakah anda merasa tidak tertarik atau kehilangan minat pada aktivitas yang biasanya anda nikmati ?" },
+  { id: "q4", text: "Apakah Anda merasa tertekan atau sedih hampir sepanjang hari ini?" },
+  { id: "q5", text: "Apakah Anda merasa lebih mudah marah atau terganggu oleh hal-hal kecil?" },
+  { id: "q6", text: "Apakah Anda merasa tidak ada harapan atau merasa putus asa?" },
+  { id: "q7", text: "Apakah Anda merasa terisolasi atau tidak terhubung dengan orang lain?" },
+  { id: "q8", text: "Apakah Anda merasa sangat senang atau penuh energi?" },
+  { id: "q9", text: "Apakah Anda merasa perasaan Anda sangat cepat berubah dari senang menjadi sedih?" },
+  { id: "q10", text: "Apakah Anda merasa sangat khawatir atau cemas tentang masa depan?" },
+  { id: "q11", text: "Apakah Anda merasa takut atau cemas akan kejadian yang tidak pasti atau tidak dapat dikendalikan?" },
+  { id: "q12", text: "Apakah Anda merasa khawatir tentang kesehatan fisik Anda?" },
+  { id: "q13", text: "Apakah Anda sering merasa ketegangan tubuh atau sakit kepala karena stres?" },
+  { id: "q14", text: "Apakah Anda merasa tidak bisa mengontrol kecemasan Anda, bahkan saat situasi sudah aman?" },
+  { id: "q15", text: "Apakah Anda merasa kesulitan tidur atau sering terjaga di malam hari?" },
+  { id: "q16", text: "Apakah Anda merasa lelah atau tidak segar meskipun sudah tidur cukup lama?" },
+  { id: "q17", text: "Apakah Anda tidur lebih banyak dari biasanya karena merasa tertekan atau cemas?" },
+  { id: "q18", text: "Apakah Anda terbangun terlalu pagi dan tidak bisa tidur kembali?" },
+  { id: "q19", text: "Apakah Anda merasa tidur Anda terganggu oleh mimpi buruk atau kilas balik yang tidak menyenangkan?" },
+  { id: "q20", text: "Apakah Anda merasa cemas atau khawatir saat berinteraksi dengan orang lain?" },
+];
 
-export function MoodForm({ onSuccess }: MoodFormProps) {
-  const [moodScore, setMoodScore] = useState(50);
+// Inisialisasi state jawaban secara dinamis
+const initialAnswers = questions.reduce((acc, q) => {
+  acc[q.id] = "";
+  return acc;
+}, {} as Record<string, string>);
+
+
+export function MoodForm({ onFinished }: { onFinished?: () => void }) {
+  const [answers, setAnswers] = useState(initialAnswers);
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-  const { user, isAuthenticated, loading } = useSession();
   const router = useRouter();
+  const { toast } = useToast();
 
-  const emotions = [
-    { value: 0, label: "😔", description: "Very Low" },
-    { value: 25, label: "😕", description: "Low" },
-    { value: 50, label: "😊", description: "Neutral" },
-    { value: 75, label: "😃", description: "Good" },
-    { value: 100, label: "🤗", description: "Great" },
-  ];
+  const handleAnswerChange = (questionId: string, value: string) => {
+    setAnswers((prev) => ({ ...prev, [questionId]: value }));
+  };
 
-  const currentEmotion =
-    emotions.find((em) => Math.abs(moodScore - em.value) < 15) || emotions[2];
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
 
-  const handleSubmit = async () => {
-    console.log("MoodForm: Starting submission");
-    console.log("MoodForm: Auth state:", { isAuthenticated, loading, user });
-
-    if (!isAuthenticated) {
-      console.log("MoodForm: User not authenticated");
+    // Validasi dinamis: Pastikan semua pertanyaan dijawab
+    const unansweredQuestions = questions.filter(q => !answers[q.id]);
+    if (unansweredQuestions.length > 0) {
       toast({
-        title: "Authentication required",
-        description: "Please log in to track your mood",
+        title: "Belum Selesai",
+        description: `Silakan jawab ${unansweredQuestions.length} pertanyaan lagi.`,
         variant: "destructive",
       });
-      router.push("/login");
+      setIsLoading(false);
       return;
     }
 
+    // Format hasil kuesioner menjadi sebuah pesan secara dinamis
+    const messageBody = questions.map((q, index) => {
+      return `${index + 1}. **${q.text}**\n   Jawaban: ${answers[q.id]}`;
+    }).join("\n\n");
+
+    const formattedMessage = `Halo MindMate, saya baru saja menyelesaikan kuesioner suasana hati harian. Berikut hasilnya:\n\n${messageBody}\n\nBerdasarkan jawaban ini, bisakah kamu memberikan analisis singkat dan beberapa saran untuk saya?`;
+
     try {
-      setIsLoading(true);
-      const token = localStorage.getItem("token");
-      console.log(
-        "MoodForm: Token from localStorage:",
-        token ? "exists" : "not found"
-      );
+      const newSessionId = await createChatSession();
+      if (newSessionId && typeof newSessionId === 'string') {
+        localStorage.setItem(
+          `mindmate_initial_message_${newSessionId}`,
+          formattedMessage
+        );
+        
+        if(onFinished) {
+          onFinished();
+        }
 
-      const response = await fetch("/api/mood", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ score: moodScore }),
-      });
-
-      console.log("MoodForm: Response status:", response.status);
-
-      if (!response.ok) {
-        const error = await response.json();
-        console.error("MoodForm: Error response:", error);
-        throw new Error(error.error || "Failed to track mood");
+        router.push(`/therapy/${newSessionId}`);
+      } else {
+        throw new Error("Gagal membuat sesi chat baru.");
       }
-
-      const data = await response.json();
-      console.log("MoodForm: Success response:", data);
-
-      toast({
-        title: "Mood tracked successfully!",
-        description: "Your mood has been recorded.",
-      });
-
-      // Call onSuccess to close the modal
-      onSuccess?.();
     } catch (error) {
-      console.error("MoodForm: Error:", error);
+      console.error("Error submitting mood questionnaire:", error);
       toast({
-        title: "Error",
-        description:
-          error instanceof Error ? error.message : "Failed to track mood",
+        title: "Terjadi Kesalahan",
+        description: "Tidak dapat mengirimkan data. Silakan coba lagi.",
         variant: "destructive",
       });
     } finally {
@@ -94,60 +110,47 @@ export function MoodForm({ onSuccess }: MoodFormProps) {
   };
 
   return (
-    <div className="space-y-6 py-4">
-      {/* Emotion display */}
-      <div className="text-center space-y-2">
-        <div className="text-4xl">{currentEmotion.label}</div>
-        <div className="text-sm text-muted-foreground">
-          {currentEmotion.description}
-        </div>
-      </div>
-
-      {/* Emotion slider */}
-      <div className="space-y-4">
-        <div className="flex justify-between px-2">
-          {emotions.map((em) => (
-            <div
-              key={em.value}
-              className={`cursor-pointer transition-opacity ${
-                Math.abs(moodScore - em.value) < 15
-                  ? "opacity-100"
-                  : "opacity-50"
-              }`}
-              onClick={() => setMoodScore(em.value)}
-            >
-              <div className="text-2xl">{em.label}</div>
+    <form onSubmit={handleSubmit}>
+      <Card className="border-none shadow-none">
+        <CardHeader>
+          <CardTitle>Kuesioner Suasana Hati Harian</CardTitle>
+          <CardDescription>
+            Jawab pertanyaan berikut untuk membantu AI menganalisis kondisi Anda.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ScrollArea className="h-[50vh] pr-4">
+            <div className="space-y-6">
+              {questions.map((q, index) => (
+                <div key={q.id}>
+                  <Label className="font-semibold">
+                    {index + 1}. {q.text}
+                  </Label>
+                  <RadioGroup
+                    className="mt-2 flex space-x-4"
+                    onValueChange={(value) => handleAnswerChange(q.id, value)}
+                    value={answers[q.id]}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="Ya" id={`${q.id}-yes`} />
+                      <Label htmlFor={`${q.id}-yes`}>Ya</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="Tidak" id={`${q.id}-no`} />
+                      <Label htmlFor={`${q.id}-no`}>Tidak</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-
-        <Slider
-          value={[moodScore]}
-          onValueChange={(value) => setMoodScore(value[0])}
-          min={0}
-          max={100}
-          step={1}
-          className="py-4"
-        />
-      </div>
-
-      {/* Submit button */}
-      <Button
-        className="w-full"
-        onClick={handleSubmit}
-        disabled={isLoading || loading}
-      >
-        {isLoading ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Saving...
-          </>
-        ) : loading ? (
-          "Loading..."
-        ) : (
-          "Save Mood"
-        )}
-      </Button>
-    </div>
+          </ScrollArea>
+        </CardContent>
+        <CardFooter>
+          <Button type="submit" disabled={isLoading} className="w-full">
+            {isLoading ? "Menyimpan..." : "Simpan dan Analisa dengan AI"}
+          </Button>
+        </CardFooter>
+      </Card>
+    </form>
   );
 }
