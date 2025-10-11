@@ -18,6 +18,7 @@ import {
   Sparkles,
   PlusCircle,
   MessageSquare,
+  Trash2, // Import Trash2 icon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -28,11 +29,10 @@ import {
   getChatHistory,
   ChatMessage,
   getAllChatSessions,
-  ChatSession,
+  deleteChatSession,
+  ChatSession
 } from "@/lib/api/chat";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { formatDistanceToNow } from "date-fns";
-import { id as indonesiaLocale } from "date-fns/locale";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 
@@ -71,6 +71,7 @@ const glowAnimation = {
 };
 
 export default function TherapyPage() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const params = useParams();
   const router = useRouter();
   const [message, setMessage] = useState("");
@@ -110,6 +111,23 @@ export default function TherapyPage() {
       setIsLoading(false);
     }
   };
+
+  const handleDeleteSession = async (sessionIdToDelete: string) => {
+  try {
+    setIsLoading(true);
+    await deleteChatSession(sessionIdToDelete); // Use the API client function
+    setSessions((prev) => prev.filter((s) => s.sessionId !== sessionIdToDelete));
+    if (sessionIdToDelete === sessionId) {
+      setSessionId(null);
+      setMessages([]);
+      router.push("/therapy/new");
+    }
+  } catch (error) {
+    console.error("Error deleting session:", error);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   useEffect(() => {
     const initialMessageKey = `mindmate_initial_message_${params.sessionId}`;
@@ -173,15 +191,13 @@ export default function TherapyPage() {
   }, [messages, sessionId]);
 
   const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
+    if (messagesEndRef.current && messages.length > 0) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
 
   useEffect(() => {
-    if (!isTyping) {
+    if (!isTyping && messages.length > 0) {
       scrollToBottom();
     }
   }, [messages, isTyping]);
@@ -274,8 +290,10 @@ export default function TherapyPage() {
   };
 
   return (
-    <div className="relative max-w-7xl mx-auto px-4 h-screen overflow-hidden">
-      <div className="flex h-[calc(100vh-4rem)] mt-20 gap-6">
+    // <div className="relative max-w-7xl mx-auto px-4 h-[calc(100vh-8rem)] overflow-hidden">
+    //   <div className="flex flex-col md:flex-row h-full mt-16 md:mt-20 gap-4 md:gap-6">
+    <div className="relative max-w-7xl mx-auto px-4 h-[calc(100vh-4rem)] pt-[68px] overflow-hidden">
+    <div className="flex flex-col md:flex-row h-full gap-4 md:gap-6">
         {/* Sidebar with chat history */}
         <div className="w-80 flex flex-col border-r bg-muted/30">
           <div className="p-4 border-b">
@@ -320,13 +338,26 @@ export default function TherapyPage() {
                       ? "bg-primary/10 text-primary"
                       : "bg-secondary/10"
                   )}
-                  onClick={() => handleSessionSelect(session.sessionId)}
                 >
-                  <div className="flex items-center gap-2 mb-1">
-                    <MessageSquare className="w-4 h-4" />
-                    <span className="font-medium">
-                      {session.messages[0]?.content.slice(0, 30) || "Obrolan Baru"}
-                    </span>
+                  <div className="flex items-center justify-between mb-1">
+                    <div
+                      className="flex items-center gap-2 flex-1"
+                      onClick={() => handleSessionSelect(session.sessionId)}
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      <span className="font-medium">
+                        {session.messages[0]?.content.slice(0, 30) || "Obrolan Baru"}
+                      </span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteSession(session.sessionId)}
+                      className="hover:bg-red-100 hover:text-red-600"
+                      disabled={isLoading}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
                   <p className="line-clamp-2 text-muted-foreground">
                     {session.messages[session.messages.length - 1]?.content ||
@@ -339,8 +370,14 @@ export default function TherapyPage() {
                     <span className="text-xs text-muted-foreground">
                       {(() => {
                         try {
-                          const date = new Date(session.updatedAt);
+                          const dateStr = session.updatedAt || session.createdAt;
+                          if (!dateStr) {
+                            console.warn("No valid date found for session:", session.sessionId);
+                            return "Waktu tidak tersedia";
+                          }
+                          const date = new Date(dateStr);
                           if (isNaN(date.getTime())) {
+                            console.warn("Invalid date for session:", session.sessionId, dateStr);
                             return "Waktu tidak tersedia";
                           }
                           const now = new Date();
@@ -351,6 +388,7 @@ export default function TherapyPage() {
                           const diffHours = Math.floor(diffMinutes / 60);
                           return `${diffHours} jam lalu`;
                         } catch (error) {
+                          console.error("Error processing date for session:", session.sessionId, error);
                           return "Waktu tidak tersedia";
                         }
                       })()}
@@ -363,13 +401,13 @@ export default function TherapyPage() {
         </div>
 
         {/* Main chat area */}
-        <div className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-background rounded-lg border">
+           <div className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-background rounded-lg border">
           {/* Chat header */}
-          <div className="p-4 border-b flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-                <Bot className="w-5 h-5" />
-              </div>
+          <div className="p-4 border-b flex items-center justify-between fixed top-[68px] left-0 right-0 bg-background z-20 max-w-3xl mx-auto">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+              <Bot className="w-5 h-5" />
+            </div>
               <div>
                 <h2 className="font-semibold">MindMate</h2>
                 <p className="text-sm text-muted-foreground">
@@ -380,7 +418,7 @@ export default function TherapyPage() {
           </div>
 
           {messages.length === 0 ? (
-            <div className="flex-1 flex items-center justify-center p-4">
+            <div className="flex-1 flex items-center justify-center p-4 pt-20">
               <div className="max-w-2xl w-full space-y-8">
                 <div className="text-center space-y-4">
                   <div className="relative inline-flex flex-col items-center">
@@ -420,7 +458,7 @@ export default function TherapyPage() {
                   />
                   {SUGGESTED_QUESTIONS.map((q, index) => (
                     <motion.div
-                      key={q.text + index} // Menggunakan text + index untuk keunikan
+                      key={q.text + index}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 + 0.5 }}
@@ -438,20 +476,18 @@ export default function TherapyPage() {
               </div>
             </div>
           ) : (
-            <div className="flex-1 overflow-y-auto scroll-smooth">
-              <div className="max-w-3xl mx-auto">
+            <div className="flex-1 overflow-y-auto scroll-smooth pt-20 pb-4">
+              <div className="max-w-3xl mx-auto min-h-[calc(100vh-24rem)]">
                 <AnimatePresence initial={false}>
                   {messages.map((msg, index) => (
                     <motion.div
-                      key={`${msg.timestamp.toISOString()}-${index}`} // Menggabungkan timestamp dan index
+                      key={`${msg.timestamp.toISOString()}-${index}`}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3 }}
                       className={cn(
                         "px-6 py-8",
-                        msg.role === "assistant"
-                          ? "bg-muted/30"
-                          : "bg-background"
+                        msg.role === "assistant" ? "bg-muted/30" : "bg-background"
                       )}
                     >
                       <div className="flex gap-4">

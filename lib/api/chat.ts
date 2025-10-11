@@ -132,29 +132,75 @@ export const getChatHistory = async (
   }
 };
 
+// export const getAllChatSessions = async (): Promise<ChatSession[]> => {
+//   try {
+//     const response = await fetch(`${API_BASE}/chat/sessions`, {
+//       headers: getAuthHeaders(),
+//     });
+
+//     if (!response.ok) {
+//       const error = await response.json();
+//       throw new Error(error.error || "Failed to fetch chat sessions");
+//     }
+
+//     const data = await response.json();
+//     return data.map((session: any) => ({
+//       ...session,
+//       createdAt: new Date(session.createdAt),
+//       updatedAt: new Date(session.updatedAt),
+//       messages: (session.messages || []).map((msg: any) => ({
+//         ...msg,
+//         timestamp: new Date(msg.timestamp),
+//       })),
+//     }));
+//   } catch (error) {
+//     console.error("Error fetching chat sessions:", error);
+//     throw error;
+//   }
+// };
+
 export const getAllChatSessions = async (): Promise<ChatSession[]> => {
   try {
     const response = await fetch(`${API_BASE}/chat/sessions`, {
       headers: getAuthHeaders(),
     });
-
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || "Failed to fetch chat sessions");
     }
-
     const data = await response.json();
-    return data.map((session: any) => ({
-      ...session,
-      createdAt: new Date(session.createdAt),
-      updatedAt: new Date(session.updatedAt),
-      messages: (session.messages || []).map((msg: any) => ({
-        ...msg,
-        timestamp: new Date(msg.timestamp),
-      })),
-    }));
+    console.log("Raw sessions data:", data); // Tambahkan logging
+    return data.map((session: any) => {
+      console.log("Session createdAt:", session.createdAt, "updatedAt:", session.updatedAt); // Log nilai tanggal
+      return {
+        ...session,
+        createdAt: new Date(session.createdAt),
+        updatedAt: new Date(session.updatedAt),
+        messages: (session.messages || []).map((msg: any) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp),
+        })),
+      };
+    });
   } catch (error) {
     console.error("Error fetching chat sessions:", error);
+    throw error;
+  }
+};
+
+export const deleteChatSession = async (sessionId: string): Promise<void> => {
+  try {
+    const response = await fetch(`${API_BASE}/chat/sessions/${sessionId}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to delete chat session");
+    }
+  } catch (error) {
+    console.error("Error deleting chat session:", error);
     throw error;
   }
 };

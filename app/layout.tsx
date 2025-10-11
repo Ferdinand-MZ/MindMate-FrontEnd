@@ -14,8 +14,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "AI Therapy Agent",
-  description: "Your personal AI therapy companion",
+  title: "MindMate",
+  description: "Teman AI personal untukmu",
 };
 
 export default function RootLayout({
@@ -29,6 +29,7 @@ export default function RootLayout({
         <Providers>
           <Header />
           <main>{children}</main>
+
           <Footer />
           <Toaster />
         </Providers>
