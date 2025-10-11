@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+// ... (import lainnya)
 import { MoodForm } from "@/components/mood/mood-form";
 import { 
   Dialog, 
@@ -16,12 +17,29 @@ import {
   User,
   Loader2,
   Sparkles,
+  X,
+  Trophy,
+  Star,
+  Clock,
+  Smile,
   PlusCircle,
   MessageSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { BreathingGame } from "@/components/games/breathing-game";
+import { ZenGarden } from "@/components/games/zen-garden";
+import { ForestGame } from "@/components/games/forest-game";
+import { OceanWaves } from "@/components/games/ocean-waves";
+import { Badge } from "@/components/ui/badge";
 import {
   createChatSession,
   sendChatMessage,
@@ -32,9 +50,8 @@ import {
 } from "@/lib/api/chat";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
-import { id as indonesiaLocale } from "date-fns/locale";
+import { id as indonesiaLocale } from "date-fns/locale"; // <-- Import locale Indonesia
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 
 interface SuggestedQuestion {
   id: string;
@@ -47,6 +64,15 @@ interface StressPrompt {
     type: "breathing" | "garden" | "forest" | "waves";
     title: string;
     description: string;
+  };
+}
+
+interface ApiResponse {
+  message: string;
+  metadata: {
+    technique: string;
+    goal: string;
+    progress: any[];
   };
 }
 
@@ -70,6 +96,8 @@ const glowAnimation = {
   },
 };
 
+const COMPLETION_THRESHOLD = 5;
+
 export default function TherapyPage() {
   const params = useParams();
   const router = useRouter();
@@ -80,30 +108,33 @@ export default function TherapyPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [mounted, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [sessionId, setSessionId] = useState<string | null>(params.sessionId as string);
+  const [stressPrompt, setStressPrompt] = useState<StressPrompt | null>(null);
+  const [showActivity, setShowActivity] = useState(false);
+  const [isChatPaused, setIsChatPaused] = useState(false);
+  const [showNFTCelebration, setShowNFTCelebration] = useState(false);
+  const [isCompletingSession, setIsCompletingSession] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(
+    params.sessionId as string
+  );
   const [sessions, setSessions] = useState<ChatSession[]>([]);
-
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, []);
 
   const handleNewSession = async () => {
     try {
       setIsLoading(true);
       const newSessionId = await createChatSession();
+      console.log("New session created:", newSessionId);
+
       const newSession: ChatSession = {
         sessionId: newSessionId,
         messages: [],
         createdAt: new Date(),
         updatedAt: new Date(),
       };
+
       setSessions((prev) => [newSession, ...prev]);
       setSessionId(newSessionId);
       setMessages([]);
-      router.push(`/therapy/${newSessionId}`);
+      window.history.pushState({}, "", `/therapy/${newSessionId}`);
       setIsLoading(false);
     } catch (error) {
       console.error("Failed to create new session:", error);
@@ -111,36 +142,63 @@ export default function TherapyPage() {
     }
   };
 
-  useEffect(() => {
+// Anda akan menambahkan kode ini ke dalam file app/therapy/[sessionId]/page.tsx
+
+useEffect(() => {
+    // 1. Membuat kunci unik untuk localStorage
     const initialMessageKey = `mindmate_initial_message_${params.sessionId}`;
+
+    // 2. Mencari pesan di localStorage menggunakan kunci tersebut
     const initialMessage = localStorage.getItem(initialMessageKey);
+
+    // 3. Jika pesan ditemukan...
     if (initialMessage) {
+      // 4. Panggil fungsi untuk mengirim pesan
+      // Di kode Anda, fungsi ini bernama handleSubmit, tetapi kita panggil secara tidak langsung
+      
+      // Pertama, kita set pesan ke dalam state
       setMessage(initialMessage);
+      
+      // Kedua, kita picu pengiriman form setelah state diupdate
       setTimeout(() => {
+        // Membuat 'event' palsu untuk diserahkan ke handleSubmit
         const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
         handleSubmit(fakeEvent);
-        localStorage.removeItem(initialMessageKey);
-      }, 100);
+      }, 100); // Penundaan singkat untuk memastikan state sudah terupdate
+
+      // 5. Hapus pesan dari localStorage
+      localStorage.removeItem(initialMessageKey);
     }
-  }, [params.sessionId]);
+  }, [params.sessionId]); // 6. Efek ini hanya berjalan sekali saat session ID berubah
 
   useEffect(() => {
     const initChat = async () => {
       try {
         setIsLoading(true);
         if (!sessionId || sessionId === "new") {
+          console.log("Creating new chat session...");
           const newSessionId = await createChatSession();
+          console.log("New session created:", newSessionId);
           setSessionId(newSessionId);
-          router.push(`/therapy/${newSessionId}`);
+          window.history.pushState({}, "", `/therapy/${newSessionId}`);
         } else {
-          const history = await getChatHistory(sessionId);
-          if (Array.isArray(history)) {
-            const formattedHistory = history.map((msg) => ({
-              ...msg,
-              timestamp: new Date(msg.timestamp),
-            }));
-            setMessages(formattedHistory);
-          } else {
+          console.log("Loading existing chat session:", sessionId);
+          try {
+            const history = await getChatHistory(sessionId);
+            console.log("Loaded chat history:", history);
+            if (Array.isArray(history)) {
+              const formattedHistory = history.map((msg) => ({
+                ...msg,
+                timestamp: new Date(msg.timestamp),
+              }));
+              console.log("Formatted history:", formattedHistory);
+              setMessages(formattedHistory);
+            } else {
+              console.error("History is not an array:", history);
+              setMessages([]);
+            }
+          } catch (historyError) {
+            console.error("Error loading chat history:", historyError);
             setMessages([]);
           }
         }
@@ -149,7 +207,8 @@ export default function TherapyPage() {
         setMessages([
           {
             role: "assistant",
-            content: "Mohon maaf, saya mengalami kendala saat memuat sesi obrolan.",
+            content:
+              "Mohon maaf, saya mengalami kendala saat memuat sesi obrolan. Silakan coba muat ulang halaman.",
             timestamp: new Date(),
           },
         ]);
@@ -170,7 +229,7 @@ export default function TherapyPage() {
       }
     };
     loadSessions();
-  }, [messages, sessionId]);
+  }, [messages]);
 
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
@@ -186,46 +245,53 @@ export default function TherapyPage() {
     }
   }, [messages, isTyping]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const currentMessage = message.trim();
-    if (!currentMessage || isTyping || !sessionId) return;
-    setMessage("");
-    setIsTyping(true);
-    const userMessage: ChatMessage = {
-      role: "user",
-      content: currentMessage,
+  // ✅ GANTI FUNGSI LAMA ANDA DENGAN YANG INI
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  const currentMessage = message.trim();
+  if (!currentMessage || isTyping || isChatPaused || !sessionId) {
+    return;
+  }
+
+  setMessage("");
+  setIsTyping(true);
+
+  const userMessage: ChatMessage = {
+    role: "user",
+    content: currentMessage,
+    timestamp: new Date(),
+  };
+  setMessages((prev) => [...prev, userMessage]);
+
+  try {
+    // Memanggil fungsi sendChatMessage yang sudah benar
+    const aiResponse = await sendChatMessage(sessionId, currentMessage);
+
+    // Membuat pesan asisten berdasarkan struktur respons asli
+    const assistantMessage: ChatMessage = {
+      role: "assistant",
+      content:
+        aiResponse.response ||
+        aiResponse.message ||
+        "Maaf, saya tidak dapat memproses itu saat ini.",
+      timestamp: new Date(),
+      metadata: aiResponse.metadata, // Menggunakan metadata langsung
+    };
+
+    setMessages((prev) => [...prev, assistantMessage]);
+
+  } catch (error) {
+    console.error("Gagal mengirim atau menerima pesan chat:", error);
+    const errorMessage: ChatMessage = {
+      role: "assistant",
+      content: `Mohon maaf, terjadi kesalahan saat menghubungi terapis AI. Silakan coba lagi.`,
       timestamp: new Date(),
     };
-    setMessages((prev) => [...prev, userMessage]);
-    try {
-      const aiResponse = await sendChatMessage(sessionId, currentMessage);
-      const assistantMessage: ChatMessage = {
-        role: "assistant",
-        content: aiResponse.response || aiResponse.message || "Maaf, saya tidak dapat memproses itu saat ini.",
-        timestamp: new Date(),
-        metadata: aiResponse.metadata,
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
-      setSessions((prev) =>
-        prev.map((s) =>
-          s.sessionId === sessionId
-            ? { ...s, messages: [...s.messages, userMessage, assistantMessage], updatedAt: new Date() }
-            : s
-        )
-      );
-    } catch (error) {
-      console.error("Gagal mengirim atau menerima pesan chat:", error);
-      const errorMessage: ChatMessage = {
-        role: "assistant",
-        content: "Mohon maaf, terjadi kesalahan saat menghubungi MindMate.",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
-      setIsTyping(false);
-    }
-  };
+    setMessages((prev) => [...prev, errorMessage]);
+  } finally {
+    setIsTyping(false);
+  }
+};
 
   useEffect(() => {
     setMounted(true);
@@ -238,6 +304,49 @@ export default function TherapyPage() {
       </div>
     );
   }
+
+  const detectStressSignals = (message: string): StressPrompt | null => {
+    const stressKeywords = [
+      "stres", "cemas", "khawatir", "panik", "terbebani", "gugup",
+      "tegang", "tertekan", "tidak sanggup", "lelah",
+    ];
+
+    const lowercaseMsg = message.toLowerCase();
+    const foundKeyword = stressKeywords.find((keyword) =>
+      lowercaseMsg.includes(keyword)
+    );
+
+    if (foundKeyword) {
+      const activities = [
+        {
+          type: "breathing" as const,
+          title: "Latihan Pernapasan",
+          description: "Ikuti latihan pernapasan menenangkan dengan panduan visual",
+        },
+        {
+          type: "garden" as const,
+          title: "Taman Zen",
+          description: "Ciptakan dan rawat ruang digital Anda yang damai",
+        },
+        {
+          type: "forest" as const,
+          title: "Hutan Meditasi",
+          description: "Jalan-jalan santai di hutan virtual yang menenangkan",
+        },
+        {
+          type: "waves" as const,
+          title: "Ombak Lautan",
+          description: "Sesuaikan napas Anda dengan ombak laut yang lembut",
+        },
+      ];
+      return {
+        trigger: foundKeyword,
+        activity: activities[Math.floor(Math.random() * activities.length)],
+      };
+    }
+
+    return null;
+  };
 
   const handleSuggestedQuestion = async (text: string) => {
     if (!sessionId) {
@@ -252,8 +361,21 @@ export default function TherapyPage() {
     }, 0);
   };
 
+  const handleCompleteSession = async () => {
+    if (isCompletingSession) return;
+    setIsCompletingSession(true);
+    try {
+      setShowNFTCelebration(true);
+    } catch (error) {
+      console.error("Error completing session:", error);
+    } finally {
+      setIsCompletingSession(false);
+    }
+  };
+
   const handleSessionSelect = async (selectedSessionId: string) => {
     if (selectedSessionId === sessionId) return;
+
     try {
       setIsLoading(true);
       const history = await getChatHistory(selectedSessionId);
@@ -264,7 +386,7 @@ export default function TherapyPage() {
         }));
         setMessages(formattedHistory);
         setSessionId(selectedSessionId);
-        router.push(`/therapy/${selectedSessionId}`);
+        window.history.pushState({}, "", `/therapy/${selectedSessionId}`);
       }
     } catch (error) {
       console.error("Failed to load session:", error);
@@ -274,7 +396,7 @@ export default function TherapyPage() {
   };
 
   return (
-    <div className="relative max-w-7xl mx-auto px-4 h-screen overflow-hidden">
+    <div className="relative max-w-7xl mx-auto px-4">
       <div className="flex h-[calc(100vh-4rem)] mt-20 gap-6">
         {/* Sidebar with chat history */}
         <div className="w-80 flex flex-col border-r bg-muted/30">
@@ -307,8 +429,10 @@ export default function TherapyPage() {
                 <MessageSquare className="w-4 h-4" />
               )}
               Sesi Baru
+              Sesi Baru
             </Button>
           </div>
+
           <ScrollArea className="flex-1 p-4">
             <div className="space-y-4">
               {sessions.map((session) => (
@@ -341,17 +465,14 @@ export default function TherapyPage() {
                         try {
                           const date = new Date(session.updatedAt);
                           if (isNaN(date.getTime())) {
-                            return "Waktu tidak tersedia";
+                            return "Baru saja";
                           }
-                          const now = new Date();
-                          const diffMs = now.getTime() - date.getTime();
-                          const diffMinutes = Math.floor(diffMs / 60000);
-                          if (diffMinutes < 1) return "Baru saja";
-                          if (diffMinutes < 60) return `${diffMinutes} menit lalu`;
-                          const diffHours = Math.floor(diffMinutes / 60);
-                          return `${diffHours} jam lalu`;
+                          return formatDistanceToNow(date, {
+                            addSuffix: true,
+                            locale: indonesiaLocale,
+                          });
                         } catch (error) {
-                          return "Waktu tidak tersedia";
+                          return "Baru saja";
                         }
                       })()}
                     </span>
@@ -371,8 +492,9 @@ export default function TherapyPage() {
                 <Bot className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="font-semibold">MindMate</h2>
+                <h2 className="font-semibold">Terapis AI</h2>
                 <p className="text-sm text-muted-foreground">
+                  {messages.length} pesan
                   {messages.length} pesan
                 </p>
               </div>
@@ -380,6 +502,7 @@ export default function TherapyPage() {
           </div>
 
           {messages.length === 0 ? (
+            // Welcome screen with suggested questions
             <div className="flex-1 flex items-center justify-center p-4">
               <div className="max-w-2xl w-full space-y-8">
                 <div className="text-center space-y-4">
@@ -403,7 +526,7 @@ export default function TherapyPage() {
                         </motion.div>
                       </div>
                       <span className="bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent">
-                        MindMate
+                        Terapis AI
                       </span>
                     </div>
                     <p className="text-muted-foreground mt-2">
@@ -411,6 +534,7 @@ export default function TherapyPage() {
                     </p>
                   </div>
                 </div>
+
                 <div className="grid gap-3 relative">
                   <motion.div
                     className="absolute -inset-4 bg-gradient-to-b from-primary/5 to-transparent blur-xl"
@@ -420,7 +544,7 @@ export default function TherapyPage() {
                   />
                   {SUGGESTED_QUESTIONS.map((q, index) => (
                     <motion.div
-                      key={q.text + index} // Menggunakan text + index untuk keunikan
+                      key={q.text}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 + 0.5 }}
@@ -438,12 +562,13 @@ export default function TherapyPage() {
               </div>
             </div>
           ) : (
+            // Chat messages
             <div className="flex-1 overflow-y-auto scroll-smooth">
               <div className="max-w-3xl mx-auto">
                 <AnimatePresence initial={false}>
-                  {messages.map((msg, index) => (
+                  {messages.map((msg) => (
                     <motion.div
-                      key={`${msg.timestamp.toISOString()}-${index}`} // Menggabungkan timestamp dan index
+                      key={msg.timestamp.toISOString()}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3 }}
@@ -469,7 +594,9 @@ export default function TherapyPage() {
                         <div className="flex-1 space-y-2 overflow-hidden min-h-[2rem]">
                           <div className="flex items-center justify-between">
                             <p className="font-medium text-sm">
-                              {msg.role === "assistant" ? "MindMate" : "You"}
+                              {msg.role === "assistant"
+                                ? "MindMate"
+                                : "You"}
                             </p>
                             {msg.metadata?.technique && (
                               <Badge variant="secondary" className="text-xs">
@@ -490,6 +617,7 @@ export default function TherapyPage() {
                     </motion.div>
                   ))}
                 </AnimatePresence>
+
                 {isTyping && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -502,7 +630,7 @@ export default function TherapyPage() {
                       </div>
                     </div>
                     <div className="flex-1 space-y-2">
-                      <p className="font-medium text-sm">MindMate</p>
+                      <p className="font-medium text-sm">Terapis AI</p>
                       <p className="text-sm text-muted-foreground">Sedang mengetik...</p>
                     </div>
                   </motion.div>
@@ -522,17 +650,22 @@ export default function TherapyPage() {
                 <textarea
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Tanyakan apa saja..."
+                  placeholder={
+                    isChatPaused
+                      ? "Selesaikan aktivitas untuk melanjutkan..."
+                      : "Tanyakan apa saja..."
+                  }
                   className={cn(
                     "w-full resize-none rounded-2xl border bg-background",
                     "p-3 pr-12 min-h-[48px] max-h-[200px]",
                     "focus:outline-none focus:ring-2 focus:ring-primary/50",
                     "transition-all duration-200",
                     "placeholder:text-muted-foreground/70",
-                    isTyping && "opacity-50 cursor-not-allowed"
+                    (isTyping || isChatPaused) &&
+                      "opacity-50 cursor-not-allowed"
                   )}
                   rows={1}
-                  disabled={isTyping}
+                  disabled={isTyping || isChatPaused}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
@@ -548,10 +681,11 @@ export default function TherapyPage() {
                     "rounded-xl transition-all duration-200",
                     "bg-primary hover:bg-primary/90",
                     "shadow-sm shadow-primary/20",
-                    (isTyping || !message.trim()) && "opacity-50 cursor-not-allowed",
+                    (isTyping || isChatPaused || !message.trim()) &&
+                      "opacity-50 cursor-not-allowed",
                     "group-hover:scale-105 group-focus-within:scale-105"
                   )}
-                  disabled={isTyping || !message.trim()}
+                  disabled={isTyping || isChatPaused || !message.trim()}
                   onClick={(e) => {
                     e.preventDefault();
                     handleSubmit(e);
@@ -573,17 +707,18 @@ export default function TherapyPage() {
         </div>
       </div>
       <Dialog open={isAssessmentModalOpen} onOpenChange={setAssessmentModalOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Asesmen Kesehatan Mental</DialogTitle>
-          </DialogHeader>
-          <MoodForm
-            onFinished={() => {
-              setAssessmentModalOpen(false);
-            }}
-          />
-        </DialogContent>
-      </Dialog>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Asesmen Kesehatan Mental</DialogTitle>
+        </DialogHeader>
+        <MoodForm
+          onFinished={() => {
+            // Fungsi ini akan menutup modal setelah kuesioner disubmit
+            setAssessmentModalOpen(false);
+          }}
+        />
+      </DialogContent>
+    </Dialog>
     </div>
   );
 }

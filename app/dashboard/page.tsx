@@ -105,9 +105,10 @@ export default function Dashboard() {
             animate={{ opacity: 1, x: 0 }}
             className="space-y-2"
           >
-            <h1 className="text-3xl font-bold text-foreground">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground text-center sm:text-left">
               Selamat Datang, {user?.name || "teman"}
             </h1>
+
             <p className="text-muted-foreground">
               {currentTime.toLocaleDateString("id-ID", {
                 weekday: "long",
