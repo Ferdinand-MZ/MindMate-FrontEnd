@@ -107,11 +107,10 @@ export default function FeaturesPage() {
           Siap Memulai?
         </h2>
         <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8">
-          Ayo gabung dengan ribuan orang lainnya yang sudah merasakan manfaat
-          dukungan kesehatan mental dari AI kami.
+          Temukan dukungan kesehatan mental yang ramah dan personal dengan panduan AI kami.
         </p>
         <a
-          href="/sign in"
+          href="/login"
           className="inline-flex items-center px-5 sm:px-6 py-3 sm:py-3.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm sm:text-base"
         >
           Mulai Sekarang
