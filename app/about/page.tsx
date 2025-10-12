@@ -9,19 +9,19 @@ const missions = [
     icon: <Heart className="w-8 h-8 text-primary" />,
     title: "Misi Kami",
     description:
-      "Mendemokratisasi akses terhadap dukungan kesehatan mental melalui AI yang etis, membuat perawatan terapeutik berkualitas tersedia untuk semua orang, di mana saja, dan kapan saja.",
+      "Menyediakan ruang percakapan reflektif yang ramah dan bebas stigma, menerapkan CBT untuk mengubah pola pikir negatif, mendorong kebiasaan berpikir positif dan kesadaran diri, serta menjaga privasi data sebagai prioritas, sambil menjadi teman virtual yang mendukung secara emosional dan edukatif.",
   },
   {
     icon: <Target className="w-8 h-8 text-primary" />,
     title: "Visi Kami",
     description:
-      "Mewujudkan dunia di mana dukungan kesehatan mental dapat diakses, bersifat pribadi, dan personal, didukung oleh agen AI tepercaya.",
+      "Mewujudkan pendamping digital yang membantu pelajar dan mahasiswa memahami diri, mengelola emosi, serta menjaga kesehatan mental secara positif, mudah, dan aman.",
   },
   {
     icon: <Sparkles className="w-8 h-8 text-primary" />,
     title: "Nilai-Nilai Kami",
     description:
-      "Privasi, Inovasi, Empati, dan Kepercayaan menjadi landasan platform kami, untuk memastikan standar perawatan dan keamanan tertinggi bagi pengguna.",
+      "Berlandaskan empati, menjaga kerahasiaan, mendorong keterbukaan dan refleksi diri, serta mendukung pertumbuhan positif pengguna dalam setiap percakapan.",
   },
 ];
 
@@ -39,7 +39,8 @@ export default function AboutPage() {
           Tentang MindMate
         </h1>
         <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-        Kami merevolusi dukungan kesehatan mental menggunakan teknologi AI canggih, demi menciptakan pengalaman terapi yang sepenuhnya rahasia dan tepercaya.
+        Chatbot berbasis web yang menggabungkan kecerdasan buatan (AI) dengan pendekatan Cognitive Behavioral Therapy (CBT)
+        metode psikologis yang membantu seseorang memahami hubungan antara pikiran, perasaan, dan perilakunya.
         </p>
       </motion.div>
 
