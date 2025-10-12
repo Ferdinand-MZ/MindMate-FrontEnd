@@ -33,7 +33,6 @@ import {
   ChatSession
 } from "@/lib/api/chat";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 
 interface SuggestedQuestion {
@@ -285,10 +284,27 @@ export default function TherapyPage() {
   };
 
   return (
-    <div className="relative max-w-7xl mx-auto px-4 min-h-screen overflow-auto pt-20 md:pt-24">
-      <div className="flex flex-col md:flex-row gap-4 md:gap-6">
-        {/* Sidebar with chat history */}
-        <div className="w-80 flex flex-col border-r bg-muted/30 sticky top-20 md:top-24 h-[calc(100vh-5rem)]">
+    <div className="min-h-screen overflow-auto bg-background">
+      <div className="fixed top-0 left-80 right-0 z-30 bg-background border-b">
+        <div className="max-w-[calc(100vw-20rem)] mx-auto px-4">
+          <div className="flex items-center justify-between py-4">
+            <div className="flex items-center gap-2 w-full">
+              <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                <Bot className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="font-semibold">MindMate</h2>
+                <p className="text-sm text-muted-foreground">
+                  {messages.length} pesan
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="fixed top-16 left-0 w-80 h-[calc(100vh-4rem)] border-r bg-muted/30 z-20">
+        <div className="flex flex-col h-full">
           <div className="p-4 border-b">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Sesi Obrolan</h2>
@@ -394,28 +410,14 @@ export default function TherapyPage() {
             </div>
           </ScrollArea>
         </div>
+      </div>
 
-        {/* Main chat area */}
-        <div className="flex-1 flex flex-col bg-white dark:bg-background rounded-lg border min-h-[calc(100vh-5rem)]" ref={chatContainerRef}>
-          {/* Chat header */}
-          <div className="p-4 border-b flex items-center justify-between sticky top-0 bg-background z-20">
-            <div className="flex items-center gap-2 max-w-3xl mx-auto w-full">
-              <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-                <Bot className="w-5 h-5" />
-              </div>
-              <div>
-                <h2 className="font-semibold">MindMate</h2>
-                <p className="text-sm text-muted-foreground">
-                  {messages.length} pesan
-                </p>
-              </div>
-            </div>
-          </div>
-
+      <div className="ml-80 pt-24 pb-20">
+        <div className="flex flex-col min-h-[calc(100vh-5rem)]">
           <div className="flex-1 p-4">
             {messages.length === 0 ? (
               <div className="h-full flex items-center justify-center">
-                <div className="max-w-2xl w-full space-y-8">
+                <div className="w-full max-w-[calc(100vw-20rem)] mx-auto space-y-8">
                   <div className="text-center space-y-4">
                     <div className="relative inline-flex flex-col items-center">
                       <motion.div
@@ -472,7 +474,7 @@ export default function TherapyPage() {
                 </div>
               </div>
             ) : (
-              <div className="max-w-3xl mx-auto">
+              <div ref={chatContainerRef} className="max-w-[calc(100vw-20rem)] mx-auto">
                 <AnimatePresence initial={false}>
                   {messages.map((msg, index) => (
                     <motion.div
@@ -543,11 +545,10 @@ export default function TherapyPage() {
             )}
           </div>
 
-          {/* Input area */}
-          <div className="border-t bg-background/50 backdrop-blur supports-[backdrop-filter]:bg-background/50 p-4 sticky bottom-0 z-20">
+          <div className="border-t bg-background/50 backdrop-blur supports-[backdrop-filter]:bg-background/50 p-4 fixed bottom-0 left-80 right-0 z-20">
             <form
               onSubmit={handleSubmit}
-              className="max-w-3xl mx-auto flex gap-4 items-end relative"
+              className="max-w-[calc(100vw-20rem)] mx-auto flex gap-4 items-end relative"
             >
               <div className="flex-1 relative group">
                 <textarea
@@ -592,7 +593,7 @@ export default function TherapyPage() {
                 </Button>
               </div>
             </form>
-            <div className="mt-2 text-xs text-center text-muted-foreground max-w-3xl mx-auto">
+            <div className="mt-2 text-xs text-center text-muted-foreground max-w-[calc(100vw-20rem)] mx-auto">
               Tekan <kbd className="px-2 py-0.5 rounded bg-muted">Enter ↵</kbd>{" "}
               untuk mengirim,
               <kbd className="px-2 py-0.5 rounded bg-muted ml-1">
@@ -603,6 +604,7 @@ export default function TherapyPage() {
           </div>
         </div>
       </div>
+      
       <Dialog open={isAssessmentModalOpen} onOpenChange={setAssessmentModalOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
