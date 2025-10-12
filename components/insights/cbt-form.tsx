@@ -295,7 +295,7 @@ export function CBTQuiz({
         <DialogHeader>
           <DialogTitle>
             {!result
-              ? `CBT Check-in (${step + 1}/${questions.length})`
+              ? `CBT Questions (${step + 1}/${questions.length})`
               : "Hasil Analisis CBT"}
           </DialogTitle>
         </DialogHeader>
