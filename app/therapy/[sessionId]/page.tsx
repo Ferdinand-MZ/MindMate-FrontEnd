@@ -1,11 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { MoodForm } from "@/components/mood/mood-form";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -31,7 +31,7 @@ import {
   ChatMessage,
   getAllChatSessions,
   deleteChatSession,
-  ChatSession
+  ChatSession,
 } from "@/lib/api/chat";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -76,13 +76,15 @@ export default function TherapyPage() {
   const router = useRouter();
   const [message, setMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [isAssessmentModalOpen, setAssessmentModalOpen] = useState(false); 
+  const [isAssessmentModalOpen, setAssessmentModalOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [mounted, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [sessionId, setSessionId] = useState<string | null>(params.sessionId as string);
+  const [sessionId, setSessionId] = useState<string | null>(
+    params.sessionId as string
+  );
   const [sessions, setSessions] = useState<ChatSession[]>([]);
 
   useEffect(() => {
@@ -93,10 +95,9 @@ export default function TherapyPage() {
         setIsSidebarOpen(true);
       }
     };
-
     handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
@@ -128,7 +129,9 @@ export default function TherapyPage() {
     try {
       setIsLoading(true);
       await deleteChatSession(sessionIdToDelete);
-      setSessions((prev) => prev.filter((s) => s.sessionId !== sessionIdToDelete));
+      setSessions((prev) =>
+        prev.filter((s) => s.sessionId !== sessionIdToDelete)
+      );
       if (sessionIdToDelete === sessionId) {
         setSessionId(null);
         setMessages([]);
@@ -179,7 +182,8 @@ export default function TherapyPage() {
         setMessages([
           {
             role: "assistant",
-            content: "Mohon maaf, saya mengalami kendala saat memuat sesi obrolan.",
+            content:
+              "Mohon maaf, saya mengalami kendala saat memuat sesi obrolan.",
             timestamp: new Date(),
           },
         ]);
@@ -235,7 +239,10 @@ export default function TherapyPage() {
       const aiResponse = await sendChatMessage(sessionId, currentMessage);
       const assistantMessage: ChatMessage = {
         role: "assistant",
-        content: aiResponse.response || aiResponse.message || "Maaf, saya tidak dapat memproses itu saat ini.",
+        content:
+          aiResponse.response ||
+          aiResponse.message ||
+          "Maaf, saya tidak dapat memproses itu saat ini.",
         timestamp: new Date(),
         metadata: aiResponse.metadata,
       };
@@ -243,7 +250,11 @@ export default function TherapyPage() {
       setSessions((prev) =>
         prev.map((s) =>
           s.sessionId === sessionId
-            ? { ...s, messages: [...s.messages, userMessage, assistantMessage], updatedAt: new Date() }
+            ? {
+                ...s,
+                messages: [...s.messages, userMessage, assistantMessage],
+                updatedAt: new Date(),
+              }
             : s
         )
       );
@@ -283,7 +294,7 @@ export default function TherapyPage() {
 
   const handleSessionSelect = async (selectedSessionId: string) => {
     if (selectedSessionId === sessionId) return;
-    
+
     try {
       setIsLoading(true);
       const history = await getChatHistory(selectedSessionId);
@@ -296,7 +307,7 @@ export default function TherapyPage() {
         setSessionId(selectedSessionId);
         router.push(`/therapy/${selectedSessionId}`);
       }
-      
+
       if (window.innerWidth < 1024) {
         setIsSidebarOpen(false);
       }
@@ -309,7 +320,7 @@ export default function TherapyPage() {
 
   return (
     <div className="min-h-screen overflow-auto bg-background">
-      <div 
+      <div
         className={cn(
           "fixed top-0 right-0 z-30 bg-background/95 backdrop-blur border-b transition-all duration-300",
           isSidebarOpen ? "left-80 lg:left-80" : "left-0"
@@ -332,24 +343,21 @@ export default function TherapyPage() {
         </div>
       </div>
 
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className={cn(
-          "fixed top-20 z-50 h-11 w-11 rounded-full shadow-lg border-2 bg-background",
-          "hover:bg-primary hover:text-primary-foreground hover:border-primary",
-          "transition-all duration-300",
-          isSidebarOpen ? "left-[304px] lg:left-[304px]" : "left-4"
-        )}
-        title={isSidebarOpen ? "Tutup Sidebar" : "Buka Sidebar"}
-      >
-        {isSidebarOpen ? (
-          <PanelLeftClose className="w-5 h-5" />
-        ) : (
+      {!isSidebarOpen && (
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className={cn(
+            "fixed top-20 z-50 h-11 w-11 rounded-full shadow-lg border-2 bg-background",
+            "hover:bg-primary hover:text-primary-foreground hover:border-primary",
+            "transition-all duration-300 left-4"
+          )}
+          title="Buka Sidebar"
+        >
           <PanelLeft className="w-5 h-5" />
-        )}
-      </Button>
+        </Button>
+      )}
 
       <AnimatePresence>
         {isSidebarOpen && (
@@ -362,7 +370,7 @@ export default function TherapyPage() {
           />
         )}
       </AnimatePresence>
-      
+
       <motion.div
         initial={false}
         animate={{
@@ -375,20 +383,33 @@ export default function TherapyPage() {
           <div className="p-4 border-b bg-muted/30">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Sesi Obrolan</h2>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleNewSession}
-                className="hover:bg-primary/10"
-                disabled={isLoading}
-                title="Sesi Baru"
-              >
-                {isLoading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <PlusCircle className="w-5 h-5" />
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleNewSession}
+                  className="hover:bg-primary/10"
+                  disabled={isLoading}
+                  title="Sesi Baru"
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <PlusCircle className="w-5 h-5" />
+                  )}
+                </Button>
+                {isSidebarOpen && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="hover:bg-primary/10 lg:hidden"
+                    title="Tutup Sidebar"
+                  >
+                    <PanelLeftClose className="w-5 h-5" />
+                  </Button>
                 )}
-              </Button>
+              </div>
             </div>
             <Button
               variant="outline"
@@ -404,7 +425,7 @@ export default function TherapyPage() {
               Sesi Baru
             </Button>
           </div>
-          
+
           <ScrollArea className="flex-1">
             <div className="px-3 py-4 space-y-3">
               {sessions.length === 0 ? (
@@ -423,13 +444,18 @@ export default function TherapyPage() {
                         : "bg-secondary/10 border-transparent hover:bg-primary/5 hover:border-primary/10",
                       isLoading && "opacity-50 cursor-not-allowed"
                     )}
-                    onClick={isLoading ? undefined : () => handleSessionSelect(session.sessionId)}
+                    onClick={
+                      isLoading
+                        ? undefined
+                        : () => handleSessionSelect(session.sessionId)
+                    }
                   >
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <MessageSquare className="w-4 h-4 flex-shrink-0 mt-0.5" />
                         <span className="font-medium truncate">
-                          {session.messages[0]?.content.slice(0, 30) || "Obrolan Baru"}
+                          {session.messages[0]?.content.slice(0, 30) ||
+                            "Obrolan Baru"}
                         </span>
                       </div>
                       <Button
@@ -455,7 +481,8 @@ export default function TherapyPage() {
                       <span>
                         {(() => {
                           try {
-                            const dateStr = session.updatedAt || session.createdAt;
+                            const dateStr =
+                              session.updatedAt || session.createdAt;
                             if (!dateStr) return "Baru";
                             const date = new Date(dateStr);
                             if (isNaN(date.getTime())) return "Baru";
@@ -482,7 +509,7 @@ export default function TherapyPage() {
         </div>
       </motion.div>
 
-      <div 
+      <div
         className={cn(
           "pt-24 pb-20 transition-all duration-300",
           isSidebarOpen ? "ml-0 lg:ml-80" : "ml-0"
@@ -522,7 +549,7 @@ export default function TherapyPage() {
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="grid gap-3 relative">
                     <motion.div
                       className="absolute -inset-4 bg-gradient-to-b from-primary/5 to-transparent blur-xl"
@@ -539,10 +566,10 @@ export default function TherapyPage() {
                       >
                         <Button
                           variant="outline"
-                          className="w-full h-auto py-4 px-6 text-left justify-start hover:bg-muted/50 hover:border-primary/50 transition-all duration-300 text-sm sm:text-base"
+                          className="w-full h-auto py-4 px-6 text-left justify-start hover:bg-muted/50 hover:border-primary/50 transition-all duration-300 text-sm sm:text-base break-words whitespace-normal"
                           onClick={() => handleSuggestedQuestion(q.text)}
                         >
-                          {q.text}
+                          <span className="block w-full">{q.text}</span>
                         </Button>
                       </motion.div>
                     ))}
@@ -560,7 +587,9 @@ export default function TherapyPage() {
                       transition={{ duration: 0.3 }}
                       className={cn(
                         "px-4 sm:px-6 py-6 sm:py-8",
-                        msg.role === "assistant" ? "bg-muted/30" : "bg-background"
+                        msg.role === "assistant"
+                          ? "bg-muted/30"
+                          : "bg-background"
                       )}
                     >
                       <div className="flex gap-3 sm:gap-4">
@@ -599,7 +628,7 @@ export default function TherapyPage() {
                     </motion.div>
                   ))}
                 </AnimatePresence>
-                
+
                 {isTyping && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -613,7 +642,9 @@ export default function TherapyPage() {
                     </div>
                     <div className="flex-1 space-y-2">
                       <p className="font-medium text-sm">MindMate</p>
-                      <p className="text-sm text-muted-foreground">Sedang mengetik...</p>
+                      <p className="text-sm text-muted-foreground">
+                        Sedang mengetik...
+                      </p>
                     </div>
                   </motion.div>
                 )}
@@ -622,7 +653,7 @@ export default function TherapyPage() {
             )}
           </div>
 
-          <div 
+          <div
             className={cn(
               "border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/95 p-4 fixed bottom-0 right-0 z-20 transition-all duration-300",
               isSidebarOpen ? "left-0 lg:left-80" : "left-0"
@@ -653,11 +684,12 @@ export default function TherapyPage() {
                       handleSubmit(e);
                     }
                   }}
-                  style={{ height: 'auto' }}
+                  style={{ height: "auto" }}
                   onInput={(e) => {
                     const target = e.target as HTMLTextAreaElement;
-                    target.style.height = 'auto';
-                    target.style.height = Math.min(target.scrollHeight, 200) + 'px';
+                    target.style.height = "auto";
+                    target.style.height =
+                      Math.min(target.scrollHeight, 200) + "px";
                   }}
                 />
                 <Button
@@ -668,7 +700,8 @@ export default function TherapyPage() {
                     "rounded-xl transition-all duration-200",
                     "bg-primary hover:bg-primary/90",
                     "shadow-sm shadow-primary/20",
-                    (isTyping || !message.trim()) && "opacity-50 cursor-not-allowed",
+                    (isTyping || !message.trim()) &&
+                      "opacity-50 cursor-not-allowed",
                     "group-hover:scale-105 group-focus-within:scale-105"
                   )}
                   disabled={isTyping || !message.trim()}
@@ -678,14 +711,21 @@ export default function TherapyPage() {
               </div>
             </form>
             <div className="mt-2 text-xs text-center text-muted-foreground max-w-4xl mx-auto hidden sm:block">
-              Tekan <kbd className="px-2 py-0.5 rounded bg-muted">Enter ↵</kbd> untuk mengirim,
-              <kbd className="px-2 py-0.5 rounded bg-muted ml-1">Shift + Enter</kbd> untuk baris baru
+              Tekan <kbd className="px-2 py-0.5 rounded bg-muted">Enter ↵</kbd>{" "}
+              untuk mengirim,
+              <kbd className="px-2 py-0.5 rounded bg-muted ml-1">
+                Shift + Enter
+              </kbd>{" "}
+              untuk baris baru
             </div>
           </div>
         </div>
       </div>
-      
-      <Dialog open={isAssessmentModalOpen} onOpenChange={setAssessmentModalOpen}>
+
+      <Dialog
+        open={isAssessmentModalOpen}
+        onOpenChange={setAssessmentModalOpen}
+      >
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Asesmen Kesehatan Mental</DialogTitle>
