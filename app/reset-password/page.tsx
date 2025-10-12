@@ -51,7 +51,7 @@ export default function ResetPasswordPage() {
                 href="/login"
                 className="text-primary font-semibold underline hover:text-primary/80 transition-colors"
               >
-                Sign in
+                Masuk
               </Link>
             </div>
           ) : (
@@ -118,7 +118,7 @@ export default function ResetPasswordPage() {
               href="/login"
               className="text-primary font-semibold underline hover:text-primary/80 transition-colors"
             >
-              Sign in
+              Masuk
             </Link>
           </p>
         </Card>

@@ -29,19 +29,19 @@ export default function ForgotPasswordPage() {
         <Card className="w-full md:w-5/12 max-w-2xl p-8 md:p-10 rounded-3xl shadow-2xl border border-primary/10 bg-card/90 backdrop-blur-lg mt-20">
           <div className="mb-6 text-center">
             <h1 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent mb-1 tracking-tight">
-              Forgot Password
+              Lupa Password
             </h1>
             <p className="text-base text-muted-foreground font-medium">
-              Enter your email to receive a password reset link.
+              Masukkan Email untuk menerima link 
             </p>
           </div>
           {submitted ? (
             <div className="text-center py-8">
               <p className="text-lg text-primary font-semibold mb-2">
-                Check your email!
+                Cek Email Anda!
               </p>
               <p className="text-muted-foreground">
-                If an account exists, a reset link has been sent.
+                Kalau akunmu ada, pasti link sudah terkirim.
               </p>
             </div>
           ) : (
@@ -78,12 +78,12 @@ export default function ForgotPasswordPage() {
           )}
           <div className="my-6 border-t border-primary/10" />
           <p className="text-base text-center text-muted-foreground">
-            Remembered your password?{" "}
+            Ingat Passwordmu?{" "}
             <Link
               href="/login"
               className="text-primary font-semibold underline hover:text-primary/80 transition-colors"
             >
-              Sign in
+              Masuk
             </Link>
           </p>
         </Card>

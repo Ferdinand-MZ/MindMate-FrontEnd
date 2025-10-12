@@ -9,7 +9,6 @@ import {
   Activity,
   Bot,
   LineChart,
-  Wifi,
   Heart,
 } from "lucide-react";
 
@@ -38,12 +37,6 @@ const features = [
     description:
       "Saat kamu dalam keadaan darurat, sistem kami akan langsung merespons untuk memastikan kamu tetap aman.",
   },
-  ///{
-  ///  icon: <Wifi className="w-10 h-10 text-primary" />,
-  ///  title: "Integrasi IoT",
-  ///  description:
-  ///    "Terhubung dengan perangkat rumah pintar untuk menciptakan lingkungan terapeutik yang nyaman dan beradaptasi dengan kebutuhan Anda.",
-  ///},
   {
     icon: <LineChart className="w-10 h-10 text-primary" />,
     title: "Lihat Perkembanganmu",
@@ -56,32 +49,30 @@ const features = [
     description:
       "Datamu dijamin 100% rahasia. Dengan teknologi enkripsi canggih, hanya kamu yang bisa mengakses informasimu.",
   },
-  ///{
-  ///  icon: <Heart className="w-10 h-10 text-primary" />,
-  ///  title: "Perawatan Holistik",
-  ///  description:
-  ///    "Integrasi dengan perangkat wearable dan penyedia layanan kesehatan untuk pemantauan kesehatan mental yang komprehensif.",
-  ///},
 ];
 
 export default function FeaturesPage() {
   return (
-    <div className="container mx-auto px-4 py-24">
+    <div className="container mx-auto px-4 py-16 sm:py-24">
+      {/* Header Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="text-center mb-16"
+        className="text-center mb-12 sm:mb-16"
       >
-        <h1 className="text-4xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
           Fitur Unggulan Kami
         </h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Lihat bagaimana aplikasi AI kami mengubah cara mendapatkan dukungan kesehatan mental, dengan teknologi canggih yang selalu menjaga privasimu.
+        <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
+          Lihat bagaimana aplikasi AI kami mengubah cara mendapatkan dukungan
+          kesehatan mental, dengan teknologi canggih yang selalu menjaga
+          privasimu.
         </p>
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {/* Features Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
         {features.map((feature, index) => (
           <motion.div
             key={feature.title}
@@ -89,28 +80,38 @@ export default function FeaturesPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: index * 0.1 }}
           >
-            <Card className="p-6 h-full hover:shadow-lg transition-shadow duration-300 bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              <div className="mb-4">{feature.icon}</div>
-              <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-              <p className="text-muted-foreground">{feature.description}</p>
+            <Card className="p-5 sm:p-6 h-full hover:shadow-lg transition-shadow duration-300 bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+              <div className="mb-4 flex justify-center sm:justify-start">
+                {feature.icon}
+              </div>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2 text-center sm:text-left">
+                {feature.title}
+              </h3>
+              <p className="text-sm sm:text-base text-muted-foreground text-center sm:text-left">
+                {feature.description}
+              </p>
             </Card>
           </motion.div>
         ))}
       </div>
 
+      {/* CTA Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.8 }}
-        className="text-center mt-16"
+        className="text-center mt-14 sm:mt-16 px-4"
       >
-        <h2 className="text-2xl font-semibold mb-4">Siap Memulai?</h2>
-        <p className="text-muted-foreground mb-8">
-          Ayo gabung dengan ribuan orang lainnya yang sudah merasakan manfaat dukungan kesehatan mental dari AI kami.
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-3">
+          Siap Memulai?
+        </h2>
+        <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8">
+          Ayo gabung dengan ribuan orang lainnya yang sudah merasakan manfaat
+          dukungan kesehatan mental dari AI kami.
         </p>
         <a
-          href="/dashboard"
-          className="inline-flex items-center px-6 py-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+          href="/sign in"
+          className="inline-flex items-center px-5 sm:px-6 py-3 sm:py-3.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm sm:text-base"
         >
           Mulai Sekarang
           <Heart className="ml-2 w-5 h-5" />
