@@ -18,7 +18,7 @@ import {
   Sparkles,
   PlusCircle,
   MessageSquare,
-  Trash2, // Import Trash2 icon
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -78,6 +78,7 @@ export default function TherapyPage() {
   const [isTyping, setIsTyping] = useState(false);
   const [isAssessmentModalOpen, setAssessmentModalOpen] = useState(false); 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [mounted, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -85,10 +86,7 @@ export default function TherapyPage() {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
 
   useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
+    setMounted(true);
   }, []);
 
   const handleNewSession = async () => {
@@ -113,21 +111,21 @@ export default function TherapyPage() {
   };
 
   const handleDeleteSession = async (sessionIdToDelete: string) => {
-  try {
-    setIsLoading(true);
-    await deleteChatSession(sessionIdToDelete); // Use the API client function
-    setSessions((prev) => prev.filter((s) => s.sessionId !== sessionIdToDelete));
-    if (sessionIdToDelete === sessionId) {
-      setSessionId(null);
-      setMessages([]);
-      router.push("/therapy/new");
+    try {
+      setIsLoading(true);
+      await deleteChatSession(sessionIdToDelete);
+      setSessions((prev) => prev.filter((s) => s.sessionId !== sessionIdToDelete));
+      if (sessionIdToDelete === sessionId) {
+        setSessionId(null);
+        setMessages([]);
+        router.push("/therapy/new");
+      }
+    } catch (error) {
+      console.error("Error deleting session:", error);
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    console.error("Error deleting session:", error);
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   useEffect(() => {
     const initialMessageKey = `mindmate_initial_message_${params.sessionId}`;
@@ -188,16 +186,18 @@ export default function TherapyPage() {
       }
     };
     loadSessions();
-  }, [messages, sessionId]);
+  }, []);
 
   const scrollToBottom = () => {
     if (messagesEndRef.current && messages.length > 0) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    } else if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = 0;
     }
   };
 
   useEffect(() => {
-    if (!isTyping && messages.length > 0) {
+    if (!isTyping) {
       scrollToBottom();
     }
   }, [messages, isTyping]);
@@ -243,10 +243,6 @@ export default function TherapyPage() {
     }
   };
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   if (!mounted || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -280,7 +276,6 @@ export default function TherapyPage() {
         }));
         setMessages(formattedHistory);
         setSessionId(selectedSessionId);
-        router.push(`/therapy/${selectedSessionId}`);
       }
     } catch (error) {
       console.error("Failed to load session:", error);
@@ -290,12 +285,10 @@ export default function TherapyPage() {
   };
 
   return (
-    // <div className="relative max-w-7xl mx-auto px-4 h-[calc(100vh-8rem)] overflow-hidden">
-    //   <div className="flex flex-col md:flex-row h-full mt-16 md:mt-20 gap-4 md:gap-6">
-    <div className="relative max-w-7xl mx-auto px-4 h-[calc(100vh-4rem)] pt-[68px] overflow-hidden">
-    <div className="flex flex-col md:flex-row h-full gap-4 md:gap-6">
+    <div className="relative max-w-7xl mx-auto px-4 min-h-screen overflow-auto pt-20 md:pt-24">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-6">
         {/* Sidebar with chat history */}
-        <div className="w-80 flex flex-col border-r bg-muted/30">
+        <div className="w-80 flex flex-col border-r bg-muted/30 sticky top-20 md:top-24 h-[calc(100vh-5rem)]">
           <div className="p-4 border-b">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Sesi Obrolan</h2>
@@ -336,14 +329,13 @@ export default function TherapyPage() {
                     "p-3 rounded-lg text-sm cursor-pointer hover:bg-primary/5 transition-colors",
                     session.sessionId === sessionId
                       ? "bg-primary/10 text-primary"
-                      : "bg-secondary/10"
+                      : "bg-secondary/10",
+                    isLoading && "opacity-50 cursor-not-allowed"
                   )}
+                  onClick={isLoading ? undefined : () => handleSessionSelect(session.sessionId)}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <div
-                      className="flex items-center gap-2 flex-1"
-                      onClick={() => handleSessionSelect(session.sessionId)}
-                    >
+                    <div className="flex items-center gap-2 flex-1">
                       <MessageSquare className="w-4 h-4" />
                       <span className="font-medium">
                         {session.messages[0]?.content.slice(0, 30) || "Obrolan Baru"}
@@ -352,7 +344,10 @@ export default function TherapyPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleDeleteSession(session.sessionId)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteSession(session.sessionId);
+                      }}
                       className="hover:bg-red-100 hover:text-red-600"
                       disabled={isLoading}
                     >
@@ -401,13 +396,13 @@ export default function TherapyPage() {
         </div>
 
         {/* Main chat area */}
-           <div className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-background rounded-lg border">
+        <div className="flex-1 flex flex-col bg-white dark:bg-background rounded-lg border min-h-[calc(100vh-5rem)]" ref={chatContainerRef}>
           {/* Chat header */}
-          <div className="p-4 border-b flex items-center justify-between fixed top-[68px] left-0 right-0 bg-background z-20 max-w-3xl mx-auto">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-              <Bot className="w-5 h-5" />
-            </div>
+          <div className="p-4 border-b flex items-center justify-between sticky top-0 bg-background z-20">
+            <div className="flex items-center gap-2 max-w-3xl mx-auto w-full">
+              <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                <Bot className="w-5 h-5" />
+              </div>
               <div>
                 <h2 className="font-semibold">MindMate</h2>
                 <p className="text-sm text-muted-foreground">
@@ -417,67 +412,67 @@ export default function TherapyPage() {
             </div>
           </div>
 
-          {messages.length === 0 ? (
-            <div className="flex-1 flex items-center justify-center p-4 pt-20">
-              <div className="max-w-2xl w-full space-y-8">
-                <div className="text-center space-y-4">
-                  <div className="relative inline-flex flex-col items-center">
-                    <motion.div
-                      className="absolute inset-0 bg-primary/20 blur-2xl rounded-full"
-                      initial="initial"
-                      animate="animate"
-                      variants={glowAnimation}
-                    />
-                    <div className="relative flex items-center gap-2 text-2xl font-semibold">
-                      <div className="relative">
-                        <Sparkles className="w-6 h-6 text-primary" />
-                        <motion.div
-                          className="absolute inset-0 text-primary"
-                          initial="initial"
-                          animate="animate"
-                          variants={glowAnimation}
-                        >
-                          <Sparkles className="w-6 h-6" />
-                        </motion.div>
+          <div className="flex-1 p-4">
+            {messages.length === 0 ? (
+              <div className="h-full flex items-center justify-center">
+                <div className="max-w-2xl w-full space-y-8">
+                  <div className="text-center space-y-4">
+                    <div className="relative inline-flex flex-col items-center">
+                      <motion.div
+                        className="absolute inset-0 bg-primary/20 blur-2xl rounded-full"
+                        initial="initial"
+                        animate="animate"
+                        variants={glowAnimation}
+                      />
+                      <div className="relative flex items-center gap-2 text-2xl font-semibold">
+                        <div className="relative">
+                          <Sparkles className="w-6 h-6 text-primary" />
+                          <motion.div
+                            className="absolute inset-0 text-primary"
+                            initial="initial"
+                            animate="animate"
+                            variants={glowAnimation}
+                          >
+                            <Sparkles className="w-6 h-6" />
+                          </motion.div>
+                        </div>
+                        <span className="bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent">
+                          MindMate
+                        </span>
                       </div>
-                      <span className="bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent">
-                        MindMate
-                      </span>
+                      <p className="text-muted-foreground mt-2">
+                        Ada yang bisa saya bantu hari ini?
+                      </p>
                     </div>
-                    <p className="text-muted-foreground mt-2">
-                      Ada yang bisa saya bantu hari ini?
-                    </p>
+                  </div>
+                  <div className="grid gap-3 relative">
+                    <motion.div
+                      className="absolute -inset-4 bg-gradient-to-b from-primary/5 to-transparent blur-xl"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.5 }}
+                    />
+                    {SUGGESTED_QUESTIONS.map((q, index) => (
+                      <motion.div
+                        key={q.text + index}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 + 0.5 }}
+                      >
+                        <Button
+                          variant="outline"
+                          className="w-full h-auto py-4 px-6 text-left justify-start hover:bg-muted/50 hover:border-primary/50 transition-all duration-300"
+                          onClick={() => handleSuggestedQuestion(q.text)}
+                        >
+                          {q.text}
+                        </Button>
+                      </motion.div>
+                    ))}
                   </div>
                 </div>
-                <div className="grid gap-3 relative">
-                  <motion.div
-                    className="absolute -inset-4 bg-gradient-to-b from-primary/5 to-transparent blur-xl"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                  />
-                  {SUGGESTED_QUESTIONS.map((q, index) => (
-                    <motion.div
-                      key={q.text + index}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 + 0.5 }}
-                    >
-                      <Button
-                        variant="outline"
-                        className="w-full h-auto py-4 px-6 text-left justify-start hover:bg-muted/50 hover:border-primary/50 transition-all duration-300"
-                        onClick={() => handleSuggestedQuestion(q.text)}
-                      >
-                        {q.text}
-                      </Button>
-                    </motion.div>
-                  ))}
-                </div>
               </div>
-            </div>
-          ) : (
-            <div className="flex-1 overflow-y-auto scroll-smooth pt-20 pb-4">
-              <div className="max-w-3xl mx-auto min-h-[calc(100vh-24rem)]">
+            ) : (
+              <div className="max-w-3xl mx-auto">
                 <AnimatePresence initial={false}>
                   {messages.map((msg, index) => (
                     <motion.div
@@ -543,13 +538,13 @@ export default function TherapyPage() {
                     </div>
                   </motion.div>
                 )}
-                <div ref={messagesEndRef} />
+                <div ref={messagesEndRef} className="h-px" />
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Input area */}
-          <div className="border-t bg-background/50 backdrop-blur supports-[backdrop-filter]:bg-background/50 p-4">
+          <div className="border-t bg-background/50 backdrop-blur supports-[backdrop-filter]:bg-background/50 p-4 sticky bottom-0 z-20">
             <form
               onSubmit={handleSubmit}
               className="max-w-3xl mx-auto flex gap-4 items-end relative"
@@ -597,7 +592,7 @@ export default function TherapyPage() {
                 </Button>
               </div>
             </form>
-            <div className="mt-2 text-xs text-center text-muted-foreground">
+            <div className="mt-2 text-xs text-center text-muted-foreground max-w-3xl mx-auto">
               Tekan <kbd className="px-2 py-0.5 rounded bg-muted">Enter ↵</kbd>{" "}
               untuk mengirim,
               <kbd className="px-2 py-0.5 rounded bg-muted ml-1">
