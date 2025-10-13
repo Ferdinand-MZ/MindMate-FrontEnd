@@ -68,9 +68,8 @@ const symptomToDisease: Record<string, string[]> = {
     "Gangguan Sosial (Kecemasan Sosial)",
   ],
   "Rasa Takut akan Ujian": ["Gangguan Kecemasan Umum", "Gangguan Sosial (Kecemasan Sosial)"],
-  "Kehilangan Nafsu Makan": ["PTSD (Gangguan Stres Pasca Trauma)", "Gangguan Makan"],
   "Perubahan Mood Cepat": ["PTSD (Gangguan Stres Pasca Trauma)"],
-  "Keinginan untuk Menyakitkan Diri Sendiri": ["Gangguan Makan"],
+  "Gangguan Konsentrasi": ["Depresi Mayor", "Gangguan Tidur"],
 };
 
 // --------------------- Insight Data from Backend Model ---------------------
@@ -81,7 +80,6 @@ const insightDescriptions: Record<string, string> = {
   "Gangguan Tidur": "Gangguan tidur yang dapat mencakup insomnia, tidur berlebihan, atau gangguan tidur lainnya.",
   "Gangguan Sosial (Kecemasan Sosial)": "Kecemasan yang berlebihan terhadap interaksi sosial atau presentasi di depan umum.",
   "Keletihan Mental": "Kelelahan mental akibat beban akademik, stres, atau masalah kehidupan pribadi.",
-  "Gangguan Makan": "Gangguan makan yang bisa melibatkan anoreksia, bulimia, atau pola makan berlebihan karena stres.",
 };
 
 const insightSymptoms: Record<string, string[]> = {
@@ -111,7 +109,6 @@ const insightSymptoms: Record<string, string[]> = {
     "Rasa Takut akan Ujian",
   ],
   "Keletihan Mental": ["Kelelahan atau Kehilangan Energi", "Perasaan Putus Asa"],
-  "Gangguan Makan": ["Kehilangan Nafsu Makan", "Keinginan untuk Menyakitkan Diri Sendiri"],
 };
 
 const insightSolutions: Record<string, string[]> = {
@@ -157,13 +154,6 @@ const insightSolutions: Record<string, string[]> = {
     "Pola makan sehat dan seimbang",
     "Istirahat pendek antar aktivitas",
   ],
-  "Gangguan Makan": [
-    "Terapi untuk gangguan makan (CBT-ED)",
-    "Makan dalam porsi kecil tapi sering",
-    "Konsumsi makanan bergizi tinggi",
-    "Konsultasi dokter untuk cek kesehatan",
-    "Hindari stres saat makan",
-  ],
 };
 
 // --------------------- Hitung Skor ---------------------
@@ -203,7 +193,29 @@ function calculateDiseaseScores(answers: number[]) {
       average: scores.reduce((a, b) => a + b, 0) / scores.length,
       symptoms: collectedSymptoms[name] || [],
     }))
-    .sort((a, b) => b.average - a.average);
+    .sort((a, b) => {
+      // Hitung kecocokan gejala dengan insightSymptoms
+      const matchA = a.symptoms.length >= insightSymptoms[a.name].filter(sym => Object.values(questionToSymptom).includes(sym)).length &&
+                     insightSymptoms[a.name].every(sym => !Object.values(questionToSymptom).includes(sym) || a.symptoms.includes(sym));
+      const matchB = b.symptoms.length >= insightSymptoms[b.name].filter(sym => Object.values(questionToSymptom).includes(sym)).length &&
+                     insightSymptoms[b.name].every(sym => !Object.values(questionToSymptom).includes(sym) || b.symptoms.includes(sym));
+
+      if (matchA && !matchB) return -1;
+      if (!matchA && matchB) return 1;
+      if (matchA && matchB) {
+        // Jika keduanya cocok, prioritaskan berdasarkan jumlah gejala yang cocok, lalu rata-rata
+        const countA = a.symptoms.length;
+        const countB = b.symptoms.length;
+        if (countA !== countB) return countB - countA;
+        return b.average - a.average;
+      }
+
+      // Hindari Depresi Mayor kecuali semua gejalanya (yang ada di pertanyaan) cocok
+      if (a.name === "Depresi Mayor" && !matchA) return 1;
+      if (b.name === "Depresi Mayor" && !matchB) return -1;
+
+      return b.average - a.average;
+    });
 
   return result.length > 0 ? result[0] : null;
 }
@@ -264,7 +276,6 @@ export function CBTQuiz({
         solution: insightSolutions[topResult.name] || [],
       };
 
-      console.log("Submitting insight data:", insightData); // Debug log
       await createInsight(insightData);
       toast({
         title: "Insight Tersimpan",
