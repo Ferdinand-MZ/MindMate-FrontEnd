@@ -22,7 +22,8 @@ import { AnxietyGames } from "@/components/games/anxiety-games";
 import { CBTQuiz } from "@/components/insights/cbt-form";
 import { ActivityLogger } from "@/components/activities/activity-logger";
 import { useSession } from "@/lib/contexts/session-context";
-import { getInsightHistory } from "@/lib/api/insight";
+import { getInsightHistory, createInsight } from "@/lib/api/insight";
+import { toast } from "@/components/ui/use-toast";
 
 // Type definitions
 interface Insight {
@@ -48,6 +49,40 @@ interface WeatherData {
   }[];
   name: string;
 }
+
+interface InsightEntry {
+  userId: string;
+  name: string;
+  description: string;
+  symptoms: string[];
+  solution: string[];
+}
+
+// Fungsi untuk mencoba ulang pengiriman insight tertunda
+const retryPendingInsights = async (loadCBTInsights: () => Promise<void>) => {
+  const pendingInsights = JSON.parse(localStorage.getItem("pendingInsights") || "[]");
+  if (pendingInsights.length === 0) return;
+
+  let anySuccess = false;
+  for (const insight of pendingInsights) {
+    try {
+      await createInsight(insight);
+      anySuccess = true;
+      toast({
+        title: "Insight Tersimpan",
+        description: `Insight "${insight.name}" berhasil disimpan dan ditampilkan di dashboard.`,
+      });
+    } catch (err: any) {
+      console.error("Gagal mengirim insight tertunda:", err);
+      continue;
+    }
+  }
+
+  if (anySuccess) {
+    localStorage.removeItem("pendingInsights");
+    await loadCBTInsights(); // Perbarui daftar insights di dashboard
+  }
+};
 
 export default function Dashboard() {
   const [mounted, setMounted] = useState(false);
@@ -80,32 +115,53 @@ export default function Dashboard() {
       setInsights(cbtInsights);
     } catch (error) {
       console.error("Error loading CBT insights:", error);
+      setInsights([]);
     }
   }, []);
 
   // Fetch weather data
   const loadWeather = useCallback(async () => {
-  try {
-    const apiKey = process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY;
-    if (!apiKey) throw new Error("API key missing");
-    const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=Jakarta&units=metric&appid=${apiKey}`
-    );
-    if (!response.ok) throw new Error("Failed to fetch weather");
-    const data: WeatherData = await response.json();
-    setWeather(data);
-  } catch (error) {
-    console.error("Error loading weather:", error);
-    setWeather(null); // Ensure UI handles null case
-  }
-}, []);
+    try {
+      const apiKey = process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY;
+      if (!apiKey) throw new Error("API key missing");
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?q=Jakarta&units=metric&appid=${apiKey}`
+      );
+      if (!response.ok) throw new Error("Failed to fetch weather");
+      const data: WeatherData = await response.json();
+      setWeather(data);
+    } catch (error) {
+      console.error("Error loading weather:", error);
+      setWeather(null);
+    }
+  }, []);
 
+  // Pantau status koneksi dan coba ulang pengiriman secara periodik
   useEffect(() => {
     setMounted(true);
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+
+    const intervalId = setInterval(() => {
+      if (navigator.onLine) {
+        retryPendingInsights(loadCBTInsights);
+      }
+    }, 5000); // Cek setiap 5 detik jika ada data tertunda dan koneksi pulih
+
+    // Pantau event online untuk coba ulang segera
+    const handleOnline = () => {
+      retryPendingInsights(loadCBTInsights);
+    };
+
+    window.addEventListener("online", handleOnline);
+    retryPendingInsights(loadCBTInsights); // Coba saat komponen dimuat
+
     loadWeather();
-    return () => clearInterval(timer);
-  }, [loadWeather]);
+    return () => {
+      clearInterval(timer);
+      clearInterval(intervalId);
+      window.removeEventListener("online", handleOnline);
+    };
+  }, [loadWeather, loadCBTInsights]);
 
   useEffect(() => {
     if (user?._id) {
@@ -152,38 +208,38 @@ export default function Dashboard() {
           </motion.div>
           {/* Weather Widget */}
           {weather && weather.weather && weather.weather.length > 0 ? (
-          <Card className="border-primary/10">
-            <CardContent className="p-4 flex items-center gap-3">
-              <Cloud className="w-8 h-8 text-primary" />
-              <div>
-                <p className="font-semibold">{weather.name}</p>
-                <p className="text-sm text-muted-foreground">
-                  {weather.weather[0].description}
-                </p>
-                <div className="flex gap-4 text-sm">
-                  <span className="flex items-center gap-1">
-                    <Thermometer className="w-4 h-4" />
-                    {Math.round(weather.main.temp)}°C
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Droplets className="w-4 h-4" />
-                    {weather.main.humidity}%
-                  </span>
+            <Card className="border-primary/10">
+              <CardContent className="p-4 flex items-center gap-3">
+                <Cloud className="w-8 h-8 text-primary" />
+                <div>
+                  <p className="font-semibold">{weather.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {weather.weather[0].description}
+                  </p>
+                  <div className="flex gap-4 text-sm">
+                    <span className="flex items-center gap-1">
+                      <Thermometer className="w-4 h-4" />
+                      {Math.round(weather.main.temp)}°C
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Droplets className="w-4 h-4" />
+                      {weather.main.humidity}%
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ) : (
-          <Card className="border-primary/10">
-            <CardContent className="p-4 flex items-center gap-3">
-              <Cloud className="w-8 h-8 text-primary" />
-              <div>
-                <p className="font-semibold">Jakarta</p>
-                <p className="text-sm text-muted-foreground">Weather data unavailable</p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="border-primary/10">
+              <CardContent className="p-4 flex items-center gap-3">
+                <Cloud className="w-8 h-8 text-primary" />
+                <div>
+                  <p className="font-semibold">Jakarta</p>
+                  <p className="text-sm text-muted-foreground">Weather data unavailable</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Main Grid Layout */}
@@ -266,8 +322,10 @@ export default function Dashboard() {
         open={isQuizOpen}
         onClose={() => {
           setIsQuizOpen(false);
-          loadCBTInsights(); // Refresh insights after quiz submission
+          loadCBTInsights(); // Refresh insights setelah quiz selesai
+          retryPendingInsights(loadCBTInsights); // Coba kirim ulang data tertunda
         }}
+        loadCBTInsights={loadCBTInsights}
       />
       <ActivityLogger
         open={showActivityLogger}

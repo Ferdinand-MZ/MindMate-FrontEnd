@@ -194,7 +194,6 @@ function calculateDiseaseScores(answers: number[]) {
       symptoms: collectedSymptoms[name] || [],
     }))
     .sort((a, b) => {
-      // Hitung kecocokan gejala dengan insightSymptoms
       const matchA = a.symptoms.length >= insightSymptoms[a.name].filter(sym => Object.values(questionToSymptom).includes(sym)).length &&
                      insightSymptoms[a.name].every(sym => !Object.values(questionToSymptom).includes(sym) || a.symptoms.includes(sym));
       const matchB = b.symptoms.length >= insightSymptoms[b.name].filter(sym => Object.values(questionToSymptom).includes(sym)).length &&
@@ -203,14 +202,12 @@ function calculateDiseaseScores(answers: number[]) {
       if (matchA && !matchB) return -1;
       if (!matchA && matchB) return 1;
       if (matchA && matchB) {
-        // Jika keduanya cocok, prioritaskan berdasarkan jumlah gejala yang cocok, lalu rata-rata
         const countA = a.symptoms.length;
         const countB = b.symptoms.length;
         if (countA !== countB) return countB - countA;
         return b.average - a.average;
       }
 
-      // Hindari Depresi Mayor kecuali semua gejalanya (yang ada di pertanyaan) cocok
       if (a.name === "Depresi Mayor" && !matchA) return 1;
       if (b.name === "Depresi Mayor" && !matchB) return -1;
 
@@ -220,13 +217,22 @@ function calculateDiseaseScores(answers: number[]) {
   return result.length > 0 ? result[0] : null;
 }
 
+// --------------------- Penanganan Offline ---------------------
+export const saveToLocalStorage = (insightData: InsightEntry) => {
+  const pendingInsights = JSON.parse(localStorage.getItem("pendingInsights") || "[]");
+  pendingInsights.push(insightData);
+  localStorage.setItem("pendingInsights", JSON.stringify(pendingInsights));
+};
+
 // --------------------- Komponen CBT ---------------------
 export function CBTQuiz({
   open,
   onClose,
+  loadCBTInsights,
 }: {
   open: boolean;
   onClose: () => void;
+  loadCBTInsights: () => Promise<void>;
 }) {
   const { user } = useSession();
   const [answers, setAnswers] = useState<number[]>(Array(questions.length).fill(1));
@@ -267,26 +273,28 @@ export function CBTQuiz({
 
     setResult(topResult);
 
-    try {
-      const insightData: InsightEntry = {
-        userId: user._id,
-        name: topResult.name,
-        description: insightDescriptions[topResult.name] || "Tidak ada deskripsi tersedia",
-        symptoms: topResult.symptoms.filter((s) => insightSymptoms[topResult.name].includes(s)),
-        solution: insightSolutions[topResult.name] || [],
-      };
+    const insightData: InsightEntry = {
+      userId: user._id,
+      name: topResult.name,
+      description: insightDescriptions[topResult.name] || "Tidak ada deskripsi tersedia",
+      symptoms: topResult.symptoms.filter((s) => insightSymptoms[topResult.name].includes(s)),
+      solution: insightSolutions[topResult.name] || [],
+    };
 
+    try {
       await createInsight(insightData);
       toast({
         title: "Insight Tersimpan",
-        description: `Insight "${topResult.name}" berhasil disimpan.`,
+        description: `Insight "${topResult.name}" berhasil disimpan dan ditampilkan di dashboard.`,
       });
+      await loadCBTInsights(); // Perbarui insights di dashboard
     } catch (err: any) {
       console.error("Gagal menyimpan insight:", err);
+      saveToLocalStorage(insightData);
       toast({
-        title: "Error",
-        description: err.message || "Gagal menyimpan insight. Silakan coba lagi.",
-        variant: "destructive",
+        title: "Input Tertunda",
+        description: "Koneksi tidak tersedia. Insight akan disimpan dan ditampilkan di dashboard setelah koneksi pulih.",
+        variant: "default",
       });
     } finally {
       setSubmitting(false);
@@ -299,6 +307,7 @@ export function CBTQuiz({
         setStep(0);
         setAnswers(Array(questions.length).fill(1));
         setResult(null);
+        loadCBTInsights(); // Perbarui insights saat modal ditutup
         onClose();
       }
     }}>
@@ -355,6 +364,7 @@ export function CBTQuiz({
               setStep(0);
               setAnswers(Array(questions.length).fill(1));
               setResult(null);
+              loadCBTInsights(); // Perbarui insights saat modal ditutup
               onClose();
             }}>
               Tutup
