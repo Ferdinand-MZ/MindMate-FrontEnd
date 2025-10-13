@@ -7,6 +7,9 @@ import {
   MessageSquare,
   BrainCircuit,
   ArrowRight,
+  Cloud,
+  Thermometer,
+  Droplets,
 } from "lucide-react";
 import {
   Card,
@@ -21,7 +24,7 @@ import { ActivityLogger } from "@/components/activities/activity-logger";
 import { useSession } from "@/lib/contexts/session-context";
 import { getInsightHistory } from "@/lib/api/insight";
 
-// Type definitions (hanya yang dibutuhkan)
+// Type definitions
 interface Insight {
   _id: string;
   userId: string;
@@ -34,9 +37,22 @@ interface Insight {
   updatedAt: string;
 }
 
+interface WeatherData {
+  main: {
+    temp: number;
+    humidity: number;
+  };
+  weather: {
+    main: string;
+    description: string;
+  }[];
+  name: string;
+}
+
 export default function Dashboard() {
   const [mounted, setMounted] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [weather, setWeather] = useState<WeatherData | null>(null);
   const router = useRouter();
   const { user } = useSession();
 
@@ -67,11 +83,29 @@ export default function Dashboard() {
     }
   }, []);
 
+  // Fetch weather data
+  const loadWeather = useCallback(async () => {
+  try {
+    const apiKey = process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY;
+    if (!apiKey) throw new Error("API key missing");
+    const response = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?q=Jakarta&units=metric&appid=${apiKey}`
+    );
+    if (!response.ok) throw new Error("Failed to fetch weather");
+    const data: WeatherData = await response.json();
+    setWeather(data);
+  } catch (error) {
+    console.error("Error loading weather:", error);
+    setWeather(null); // Ensure UI handles null case
+  }
+}, []);
+
   useEffect(() => {
     setMounted(true);
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    loadWeather();
     return () => clearInterval(timer);
-  }, []);
+  }, [loadWeather]);
 
   useEffect(() => {
     if (user?._id) {
@@ -108,7 +142,6 @@ export default function Dashboard() {
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground text-center sm:text-left">
               Selamat Datang, {user?.name || "teman"}
             </h1>
-
             <p className="text-muted-foreground">
               {currentTime.toLocaleDateString("id-ID", {
                 weekday: "long",
@@ -117,6 +150,40 @@ export default function Dashboard() {
               })}
             </p>
           </motion.div>
+          {/* Weather Widget */}
+          {weather && weather.weather && weather.weather.length > 0 ? (
+          <Card className="border-primary/10">
+            <CardContent className="p-4 flex items-center gap-3">
+              <Cloud className="w-8 h-8 text-primary" />
+              <div>
+                <p className="font-semibold">{weather.name}</p>
+                <p className="text-sm text-muted-foreground">
+                  {weather.weather[0].description}
+                </p>
+                <div className="flex gap-4 text-sm">
+                  <span className="flex items-center gap-1">
+                    <Thermometer className="w-4 h-4" />
+                    {Math.round(weather.main.temp)}°C
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Droplets className="w-4 h-4" />
+                    {weather.main.humidity}%
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="border-primary/10">
+            <CardContent className="p-4 flex items-center gap-3">
+              <Cloud className="w-8 h-8 text-primary" />
+              <div>
+                <p className="font-semibold">Jakarta</p>
+                <p className="text-sm text-muted-foreground">Weather data unavailable</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
         </div>
 
         {/* Main Grid Layout */}
@@ -139,7 +206,6 @@ export default function Dashboard() {
                       </p>
                     </div>
                   </div>
-
                   <div className="grid gap-3">
                     <Button
                       variant="default"
@@ -163,7 +229,6 @@ export default function Dashboard() {
                         <ArrowRight className="w-5 h-5 text-white" />
                       </div>
                     </Button>
-
                     <Button
                       variant="outline"
                       className="flex flex-col h-[120px] px-4 py-3 justify-center items-center text-center transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/50"
@@ -183,13 +248,11 @@ export default function Dashboard() {
                 </div>
               </CardContent>
             </Card>
-
             {/* Insight Card: Tengah dan Kanan (col-start-2 col-span-2) */}
             <div className="col-start-1 lg:col-start-2 lg:col-span-2">
               <InsightCard insights={insights} />
             </div>
           </div>
-
           {/* Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-3 space-y-6">
@@ -198,7 +261,6 @@ export default function Dashboard() {
           </div>
         </div>
       </Container>
-
       {/* CBT Quiz modal */}
       <CBTQuiz
         open={isQuizOpen}
@@ -207,7 +269,6 @@ export default function Dashboard() {
           loadCBTInsights(); // Refresh insights after quiz submission
         }}
       />
-
       <ActivityLogger
         open={showActivityLogger}
         onOpenChange={setShowActivityLogger}
