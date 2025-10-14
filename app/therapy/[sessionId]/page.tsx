@@ -20,6 +20,7 @@ import {
   Trash2,
   PanelLeftClose,
   PanelLeft,
+  Mic, // Tambahkan ikon Mic
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -51,10 +52,10 @@ interface StressPrompt {
 }
 
 const SUGGESTED_QUESTIONS = [
-  { text: "Bagaimana cara mengelola kecemasan saya dengan lebih baik?" },
-  { text: "Akhir-akhir ini saya merasa sangat terbebani" },
-  { text: "Bisakah kita membahas cara meningkatkan kualitas tidur?" },
-  { text: "Saya butuh bantuan untuk keseimbangan kerja dan kehidupan" },
+  { id: "1", text: "Bagaimana cara mengelola kecemasan saya dengan lebih baik?" },
+  { id: "2", text: "Akhir-akhir ini saya merasa sangat terbebani" },
+  { id: "3", text: "Bisakah kita membahas cara meningkatkan kualitas tidur?" },
+  { id: "4", text: "Saya butuh bantuan untuk keseimbangan kerja dan kehidupan" },
 ];
 
 const glowAnimation = {
@@ -76,6 +77,7 @@ export default function TherapyPage() {
   const router = useRouter();
   const [message, setMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [isRecording, setIsRecording] = useState(false); // State untuk status perekaman
   const [isAssessmentModalOpen, setAssessmentModalOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -86,6 +88,40 @@ export default function TherapyPage() {
     params.sessionId as string
   );
   const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const recognitionRef = useRef<SpeechRecognition | null>(null); // Ref untuk SpeechRecognition
+
+  // Inisialisasi Web Speech API
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        recognitionRef.current = new SpeechRecognition();
+        recognitionRef.current.lang = "id-ID"; // Bahasa Indonesia
+        recognitionRef.current.continuous = false;
+        recognitionRef.current.interimResults = false;
+
+        recognitionRef.current.onresult = (event) => {
+          const transcript = event.results[0][0].transcript;
+          setMessage(transcript); // Set teks transkripsi ke input
+          setIsRecording(false);
+          // Otomatis submit pesan
+          const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
+          handleSubmit(fakeEvent);
+        };
+
+        recognitionRef.current.onerror = (event) => {
+          console.error("Speech recognition error:", event.error);
+          setIsRecording(false);
+          setMessage("Maaf, gagal merekam suara.");
+        };
+
+        recognitionRef.current.onend = () => {
+          setIsRecording(false);
+        };
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -268,6 +304,21 @@ export default function TherapyPage() {
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsTyping(false);
+    }
+  };
+
+  // Fungsi untuk memulai/berhenti merekam suara
+  const handleToggleRecording = () => {
+    if (!recognitionRef.current) {
+      setMessage("Speech recognition tidak didukung di browser ini.");
+      return;
+    }
+    if (isRecording) {
+      recognitionRef.current.stop();
+      setIsRecording(false);
+    } else {
+      setIsRecording(true);
+      recognitionRef.current.start();
     }
   };
 
@@ -557,12 +608,12 @@ export default function TherapyPage() {
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.5 }}
                     />
-                    {SUGGESTED_QUESTIONS.map((q, index) => (
+                    {SUGGESTED_QUESTIONS.map((q) => (
                       <motion.div
-                        key={q.text + index}
+                        key={q.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1 + 0.5 }}
+                        transition={{ delay: parseFloat(q.id) * 0.1 + 0.5 }}
                       >
                         <Button
                           variant="outline"
@@ -667,17 +718,17 @@ export default function TherapyPage() {
                 <textarea
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Tanyakan apa saja..."
+                  placeholder="Tanyakan apa saja atau gunakan mikrofon..."
                   className={cn(
                     "w-full resize-none rounded-2xl border bg-background",
-                    "p-3 pr-12 min-h-[48px] max-h-[200px]",
+                    "p-3 pr-24 min-h-[48px] max-h-[200px]", // Tambah padding untuk tombol tambahan
                     "focus:outline-none focus:ring-2 focus:ring-primary/50",
                     "transition-all duration-200 text-sm sm:text-base",
                     "placeholder:text-muted-foreground/70",
-                    isTyping && "opacity-50 cursor-not-allowed"
+                    (isTyping || isRecording) && "opacity-50 cursor-not-allowed"
                   )}
                   rows={1}
-                  disabled={isTyping}
+                  disabled={isTyping || isRecording}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
@@ -696,7 +747,7 @@ export default function TherapyPage() {
                   type="submit"
                   size="icon"
                   className={cn(
-                    "absolute right-1.5 bottom-2 sm:bottom-3.5 h-[36px] w-[36px]",
+                    "absolute right-14 bottom-2 sm:bottom-3.5 h-[36px] w-[36px]", // Geser posisi untuk memberi ruang tombol mic
                     "rounded-xl transition-all duration-200",
                     "bg-primary hover:bg-primary/90",
                     "shadow-sm shadow-primary/20",
@@ -704,9 +755,27 @@ export default function TherapyPage() {
                       "opacity-50 cursor-not-allowed",
                     "group-hover:scale-105 group-focus-within:scale-105"
                   )}
-                  disabled={isTyping || !message.trim()}
+                  disabled={isTyping || !message.trim() || isRecording}
                 >
                   <Send className="w-4 h-4" />
+                </Button>
+                <Button
+                  type="button"
+                  size="icon"
+                  className={cn(
+                    "absolute right-1.5 bottom-2 sm:bottom-3.5 h-[36px] w-[36px]",
+                    "rounded-xl transition-all duration-200",
+                    isRecording
+                      ? "bg-red-600 hover:bg-red-700"
+                      : "bg-secondary hover:bg-secondary/90",
+                    "shadow-sm shadow-primary/20",
+                    isTyping && "opacity-50 cursor-not-allowed",
+                    "group-hover:scale-105 group-focus-within:scale-105"
+                  )}
+                  disabled={isTyping}
+                  onClick={handleToggleRecording}
+                >
+                  <Mic className="w-4 h-4" />
                 </Button>
               </div>
             </form>
@@ -716,7 +785,7 @@ export default function TherapyPage() {
               <kbd className="px-2 py-0.5 rounded bg-muted ml-1">
                 Shift + Enter
               </kbd>{" "}
-              untuk baris baru
+              untuk baris baru, atau gunakan mikrofon
             </div>
           </div>
         </div>
